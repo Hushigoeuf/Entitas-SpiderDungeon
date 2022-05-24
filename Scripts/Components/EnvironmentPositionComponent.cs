@@ -1,12 +1,11 @@
-﻿using System;
-using Entitas;
+﻿using Entitas;
 
 namespace GameEngine
 {
     [Flight]
     [Environment]
     [Config]
-    public sealed class EnvironmentPositionComponent : IComponent
+    public class EnvironmentPositionComponent : IComponent
     {
         private const int SIZE = 4;
 
@@ -31,11 +30,6 @@ namespace GameEngine
                 case 3:
                     X3 = value;
                     break;
-                default:
-#if !GE_DEBUG_DISABLED
-                    throw new CustomArgumentException();
-#endif
-                    break;
             }
         }
 
@@ -46,9 +40,7 @@ namespace GameEngine
 
         public void Set(int[] values)
         {
-#if !GE_DEBUG_DISABLED
-            if (values == null || values.Length > SIZE) throw new CustomArgumentException();
-#endif
+            if (values == null || values.Length > SIZE) return;
             for (var i = 0; i < values.Length; i++) Set(i, values[i]);
         }
 
@@ -65,9 +57,6 @@ namespace GameEngine
                 case 3:
                     return X3;
                 default:
-#if !GE_DEBUG_DISABLED
-                    throw new CustomArgumentException();
-#endif
                     return 0;
             }
         }
@@ -79,15 +68,10 @@ namespace GameEngine
 
         public void Fill(ref int[] values)
         {
-#if !GE_DEBUG_DISABLED
-            if (values == null || values.Length > SIZE) throw new CustomArgumentException();
-#endif
+            if (values == null || values.Length > SIZE) return;
             for (var i = 0; i < values.Length; i++) values[i] = Get(i);
         }
 
-        public int GetSize()
-        {
-            return SIZE;
-        }
+        public int GetSize() => SIZE;
     }
 }

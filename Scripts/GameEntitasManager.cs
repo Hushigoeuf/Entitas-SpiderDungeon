@@ -4,331 +4,281 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    public sealed class GameEntitasManager : EntitasManager<GameEntitasManager>
+    /// <summary>
+    /// ECS-менеджер для основной сцены игры.
+    /// </summary>
+    [AddComponentMenu(nameof(GameEngine) + "/" + nameof(GameEntitasManager))]
+    public class GameEntitasManager : EntitasManager<GameEntitasManager>
     {
-#if UNITY_EDITOR
-        private static string _editorFirstBlockLabel = "Logic Rules";
-#endif
+        [Required] public Transform TargetCamera;
+        [MinValue(0)] public int SkipStepCount;
 
-        [BoxGroup("$_editorFirstBlockLabel")]
-        [BoxGroup("$_editorFirstBlockLabel/_fightIncluded", false)]
-        [SerializeField]
-        private bool _fightIncluded;
+        [FoldoutGroup(nameof(Settings))] [Required]
+        public FlightSettings FlightSettings;
 
-        [BoxGroup("_cameraTransform", false)] [Required] [SerializeField]
-        private Transform _cameraTransform;
+        [FoldoutGroup(nameof(Settings))] [Required]
+        public TrapSettings TrapSettings;
 
-        [BoxGroup("_soundManager", false)] [DisableIf("$_fightIncluded")] [SerializeField]
-        private SoundManager _soundManager;
+        [FoldoutGroup(nameof(Settings))] [Required]
+        public WallSettings WallSettings;
 
-        // -------------------------------------------------------------------------------------------------------------
+        [FoldoutGroup(nameof(Settings))] [Required]
+        public ScoreSettings ScoreSettings;
 
-        [BoxGroup("Data Objects")] [BoxGroup("Data Objects/_flightData", false)] [Required] [SerializeField]
-        private FlightData _flightData;
+        [FoldoutGroup(nameof(Settings))] [Required]
+        public BloodSettings BloodSettings;
 
-        [BoxGroup("Data Objects/_wallEnvironmentData", false)] [Required] [SerializeField]
-        private WallData _wallData;
+        [FoldoutGroup(nameof(Settings))] [Required]
+        public DiamondSettings DiamondSettings;
 
-        [BoxGroup("Data Objects/_trapData", false)] [Required] [SerializeField]
-        private TrapData _trapData;
+        [FoldoutGroup(nameof(Settings))] [Required]
+        public ItemSettings ItemSettings;
 
-        [BoxGroup("Data Objects/_scoreData", false)] [Required] [SerializeField]
-        private ScoreData _scoreData;
+        [FoldoutGroup(nameof(Settings))] [Required]
+        public StatSettings StatSettings;
 
-        [BoxGroup("Data Objects/_bloodData", false)] [Required] [SerializeField]
-        private BloodData _bloodData;
+        private readonly Dictionary<InventoryItemTypes, int>
+            _inventoryItems = new Dictionary<InventoryItemTypes, int>();
 
-        [BoxGroup("Data Objects/_diamondData", false)] [Required] [SerializeField]
-        private DiamondData _diamondData;
+        private readonly Dictionary<BonusItemTypes, int> _bonusItems = new Dictionary<BonusItemTypes, int>();
 
-        [BoxGroup("Data Objects/_contentData", false)] [Required] [SerializeField]
-        private ContentSettingsObject _contentData;
-
-        [BoxGroup("Data Objects/_statsData", false)] [Required] [SerializeField]
-        private StatsData _statsData;
-
-        [BoxGroup("Data Objects/_fightData", false)] [Required] [SerializeField]
-        private FightData _fightData;
-
-        // -------------------------------------------------------------------------------------------------------------
-
-        [ListDrawerSettings(Expanded = true, DraggableItems = false, ShowPaging = false)] [SerializeField]
-        private MonoBehaviour[] _delayControllers = new MonoBehaviour[0];
-
-        // -------------------------------------------------------------------------------------------------------------
-
-        private readonly Dictionary<BonusBehaviourTypes, int> _bonusList = new Dictionary<BonusBehaviourTypes, int>();
-        private readonly Dictionary<ItemBehaviourTypes, int> _itemList = new Dictionary<ItemBehaviourTypes, int>();
-        private int _delay;
+        protected bool IsItemExists => _inventoryItems.Count + _bonusItems.Count != 0;
+        private bool IsInventoryItem(InventoryItemTypes behaviourType) => _inventoryItems.ContainsKey(behaviourType);
+        private bool IsBonusItem(BonusItemTypes behaviourType) => _bonusItems.ContainsKey(behaviourType);
 
         protected override void Awake()
         {
-            if (!_fightIncluded)
-                foreach (var bonus in _contentData.BonusList)
-                {
-                    if (!GameSettings.CONTENT_ALWAYS_INCLUDED && !bonus.IsInclude()) continue;
-                    _bonusList.Add(bonus.BehaviourType, bonus.Lifetime);
-                }
+            if (TargetCamera == null)
+                if (Camera.main != null)
+                    TargetCamera = Camera.main.transform;
 
-            if (!_fightIncluded)
-                foreach (var item in _contentData.ItemList)
-                {
-                    if (!GameSettings.CONTENT_ALWAYS_INCLUDED && !item.IsInclude()) continue;
-                    _itemList.Add(item.BehaviourType, item.Lifetime);
-                }
+            foreach (var item in ItemSettings.InventoryItems)
+            {
+                if (!GameSettings.ITEM_ALWAYS_WORKING && !item.IsWorking) continue;
+                _inventoryItems.Add(item.ItemType, item.Lifetime);
+            }
 
-            if (_delayControllers.Length != 0)
-                for (var i = 0; i < _delayControllers.Length; i++)
-                {
-                    var delay = ((IDelayController) _delayControllers[i]).GetDelay();
-                    if (delay > _delay) _delay = delay;
-                }
-
-            _delayControllers = null;
+            foreach (var bonus in ItemSettings.BonusItems)
+            {
+                if (!GameSettings.ITEM_ALWAYS_WORKING && !bonus.IsWorking) continue;
+                _bonusItems.Add(bonus.BonusType, bonus.Lifetime);
+            }
 
             base.Awake();
         }
 
-        private bool IsBonus(BonusBehaviourTypes behaviourType)
+        protected override void Initialization()
         {
-            return !_fightIncluded && _bonusList.ContainsKey(behaviourType);
+            _services.SaveData = DefaultServices.SaveData;
+            _services.Pool = DefaultServices.Pool;
+            _services.Random = DefaultServices.Random;
+            _services.Localization = DefaultServices.Localization;
+
+            _settings.FlightSettings = FlightSettings;
+            _settings.TrapSettings = TrapSettings;
+            _settings.WallSettings = WallSettings;
+            _settings.ScoreSettings = ScoreSettings;
+            _settings.BloodSettings = BloodSettings;
+            _settings.DiamondSettings = DiamondSettings;
+            _settings.ItemSettings = ItemSettings;
+            _settings.StatSettings = StatSettings;
+
+            CreateSystems();
+
+            base.Initialization();
         }
 
-        private bool IsItem(ItemBehaviourTypes behaviourType)
+        protected virtual void CreateSystems()
         {
-            return !_fightIncluded && _itemList.ContainsKey(behaviourType);
-        }
-
-        protected override void Initialize()
-        {
-            // Инициализируем необходимые сервисы.
+            OpenSystemGroup("ConfigSystems");
             {
-                Services.CameraService = new UnityCameraService(_cameraTransform);
-                Services.PoolService = DefaultServices.Pool;
-                Services.RandomService = DefaultServices.Random;
-                Services.SceneService = DefaultServices.Scene;
-                Services.TimeService = DefaultServices.Time;
+                Add(new ConfigInitSystem(_contexts, _services, _settings, SkipStepCount));
+                Add(new FinishOnGameOverSystem(_contexts));
+                Add(new ScoreRegionSystem(_contexts, _settings));
+                Add(new SaveDataSystem(_contexts, _settings));
             }
+            CloseSystemGroup();
 
-            // Определяем ссылки на объекты игровых данных.
+            if (IsItemExists)
             {
-                Data.FlightData = _flightData;
-                Data.TrapData = _trapData;
-                Data.WallData = _wallData;
-                Data.ScoreData = _scoreData;
-                Data.BloodData = _bloodData;
-                Data.DiamondData = _diamondData;
-                Data.ContentData = _contentData;
-                Data.StatsData = _statsData;
-            }
-
-            // Создаем необходимые системы для работы игры.
-            _CreateSystems();
-
-            base.Initialize();
-        }
-
-        private void _CreateSystems()
-        {
-            StartSystemGroup("ConfigSystems");
-            {
-                Add(new InitializeConfigSystem(Contexts, Services, Data, _delay));
-                Add(new GameOverConfigSystem(Contexts));
-                if (!_fightIncluded)
+                OpenSystemGroup("ItemSystems");
                 {
-                    Add(new RegionConfigSystem(Contexts, Data, _soundManager));
-                    Add(new SaveStatsConfigSystem(Contexts, Data));
+                    Add(new ItemSystem(_contexts, _settings));
+                    if (IsBonusItem(BonusItemTypes.Efficiency))
+                        Add(new EfficiencyItemSystem(_contexts, _settings));
+                    if (IsBonusItem(BonusItemTypes.MagnitudeField))
+                        Add(new MagnitudeDiamondSystem(_contexts));
                 }
-
-                //Add(new CashStorageConfigSystem(Contexts, Services, Data));
-                //Add(new RegionConfigSystem(Contexts, Data));
+                CloseSystemGroup();
             }
-            EndSystemGroup();
 
-            StartSystemGroup("ContentSystems");
+            CreateFlightSystems();
+            CreateEnvironmentSystems();
+
+            if (IsItemExists)
             {
-                if (_bonusList.Count + _itemList.Count != 0)
-                    Add(new ContentObjectConfigSystem(Contexts, Services, Data));
-                if (IsBonus(BonusBehaviourTypes.Efficiency))
-                    Add(new EfficiencyConfigSystem(Contexts, Services, Data));
-                if (IsBonus(BonusBehaviourTypes.Magnitude))
-                    Add(new MagnitudeDiamondEnvironmentSystem(Contexts, Services));
+                OpenSystemGroup("ItemSystems");
+                {
+                    if (IsInventoryItem(InventoryItemTypes.Sonar))
+                        Add(new SonarItemSystem(_contexts, _settings, TargetCamera));
+                    if (IsInventoryItem(InventoryItemTypes.Cocoon))
+                        Add(new CocoonOnCollidingSystem(_contexts, _settings));
+                    if (IsInventoryItem(InventoryItemTypes.AdditionalLife))
+                        Add(new LifeItemSystem(_contexts, _settings));
+                }
+                CloseSystemGroup();
             }
-            EndSystemGroup();
 
-            _CreateFlightSystems();
-            _CreateEnvironmentSystems();
-
-            StartSystemGroup("ContentSystems");
+            OpenSystemGroup("OtherSystems");
             {
-                if (IsItem(ItemBehaviourTypes.Sonar)) Add(new SonarCleanupConfigSystem(Contexts, Services, Data));
-
-                if (IsItem(ItemBehaviourTypes.Resurrection))
-                    Add(new CoconLifeRequestConfigSystem(Contexts, Data));
-                if (IsItem(ItemBehaviourTypes.Life))
-                    Add(new LifeItemConfigSystem(Contexts, Data));
+                //Add(new ConfigCleanupSystems(_contexts));
+                //Add(new FlightCleanupSystems(_contexts));
+                //Add(new EnvironmentCleanupSystems(_contexts));
             }
-            EndSystemGroup();
-
-            StartSystemGroup("MainSystems");
-            {
-                Add(new ConfigCleanupSystems(Contexts));
-                Add(new FlightCleanupSystems(Contexts));
-                Add(new EnvironmentCleanupSystems(Contexts));
-            }
-            EndSystemGroup();
+            CloseSystemGroup();
         }
 
-        private void _CreateFlightSystems()
+        protected virtual void CreateFlightSystems()
         {
-            StartSystemGroup("FlightSystems");
+            OpenSystemGroup("FlightSystems");
             {
-                Add(new PoolSystem(Services, GameSettings.POOL_ID_FLIGHT));
-                Add(new InitializeFlightSystem(Contexts, Services, Data));
-                Add(new EnvironmentPositionFlightSystem(Contexts));
-                Add(new AccelerationFlightSystem(Contexts, Services));
-                Add(new FollowFlightSystem(Contexts, Services));
-                Add(new GuideOffsetFlightSystem(Contexts, Services));
-                Add(new MovementFlightSystem(Contexts, Services));
-                Add(new PinFlightSystem(Contexts));
-                Add(new RotationFlightSystem(Contexts, Services));
-                Add(new UpdateSpeedFlightSystem(Contexts));
-                Add(new DeadStatusFlightSystem(Contexts));
-                Add(new DeadFlightSystem(Contexts, Services, Data));
-                Add(new ResurrectionAfterDeathFlightSystem(Contexts));
-                Add(new ResurrectionFlightSystem(Contexts, Services, Data));
-                Add(new GameOverFlightSystem(Contexts));
+                Add(new PoolSystem(_services, GameSettings.POOL_ID_FLIGHT));
+                Add(new FlightInitSystem(_contexts, _services, _settings, TargetCamera));
+                Add(new EnvironmentPositionSystem(_contexts));
+                Add(new AccelerationFlightSystem(_contexts));
+                Add(new FollowSystem(_contexts));
+                Add(new GuideMovementSystem(_contexts));
+                Add(new MovementSystem(_contexts));
+                Add(new PinSystem(_contexts));
+                Add(new LookAtSystem(_contexts));
+                Add(new LimitSpeedFlightSystem(_contexts));
+                Add(new DeathStatusSystem(_contexts));
+                Add(new DeathSystem(_contexts, _services));
+                Add(new ResurrectionAfterDeathSystem(_contexts));
+                Add(new ResurrectionSystem(_contexts, _services, _settings, TargetCamera));
+                Add(new GameOverSystem(_contexts));
 
-                StartSystemGroup("InputSystems");
+                OpenSystemGroup("InputSystems");
                 {
-                    Add(new InitializeInputFlightSystem(Contexts, Data));
-                    Add(new InputOffsetFlightSystem(Contexts, Services));
-                    Add(new UpdateGuideOffsetFlightSystem(Contexts));
-                    Add(new UpdateInputOffsetFlightSystem(Contexts, Services, Data.FlightData));
-                    Add(new UpdateRateFlightSystem(Contexts));
+                    Add(new InputInitSystem(_contexts, _settings));
+                    Add(new InputMovementSystem(_contexts));
+                    Add(new InputSwitchSystem(_contexts));
+                    Add(new InputUpdateSpeedSystem(_contexts, _settings));
+                    Add(new InputRateSystem(_contexts));
                 }
-                EndSystemGroup();
+                CloseSystemGroup();
 
-                StartSystemGroup("BloodSystems");
+                OpenSystemGroup("BloodSystems");
                 {
-                    Add(new PoolSystem(Services, GameSettings.POOL_ID_FLIGHT_BLOODS));
-                    Add(new BloodFlightSystem(Contexts, Services, Data));
+                    Add(new PoolSystem(_services, GameSettings.POOL_ID_FLIGHT_BLOODS));
+                    Add(new BloodSpawnSystem(_contexts, _services, _settings, TargetCamera));
                 }
-                EndSystemGroup();
+                CloseSystemGroup();
 
-                StartSystemGroup("ContentSystems");
+                if (IsInventoryItem(InventoryItemTypes.Luck))
                 {
-                    if (IsItem(ItemBehaviourTypes.Luck))
-                        Add(new LuckFlightSystem(Contexts, Data));
-                }
-                EndSystemGroup();
-            }
-            EndSystemGroup();
-        }
-
-        private void _CreateEnvironmentSystems()
-        {
-            StartSystemGroup("EnvironmentSystems");
-            {
-                Add(new GenerationEnvironmentSystem(Contexts));
-                Add(new DestroyEnvironmentSystem(Contexts, Services));
-                Add(new AccelerationEnvironmentSystem(Contexts, Services));
-                Add(new UpdateSpeedEnvironmentSystem(Contexts));
-
-                __CreateWallSystems();
-
-                if (!_fightIncluded)
-                {
-                    __CreateTrapSystems();
-                    __CreateDiamondSystems();
-                    __CreateScoreSystems();
+                    OpenSystemGroup("ItemSystems");
+                    Add(new LuckSpeedSystem(_contexts, _settings));
+                    CloseSystemGroup();
                 }
             }
-            EndSystemGroup();
+            CloseSystemGroup();
         }
 
-        private void __CreateWallSystems()
+        protected virtual void CreateEnvironmentSystems()
         {
-            StartSystemGroup("WallSystems");
+            OpenSystemGroup("EnvironmentSystems");
             {
-                Add(new PoolSystem(Services, GameSettings.POOL_ID_ENVIRONMENT_WALLS));
-                Add(new InitializeWallEnvironmentSystem(Contexts, Services, Data.WallData));
-                Add(new GenerationWallEnvironmentSystem(Contexts, Services, Data.WallData));
-                Add(new WallEnvironmentSystem(Contexts, Data));
+                Add(new GenerationSystem(_contexts));
+                Add(new DestroySystem(_contexts, _services));
+                Add(new AccelerationEnvironmentSystem(_contexts));
+                Add(new LimitSpeedEnvironmentSystem(_contexts));
+
+                CreateWallSystems();
+                CreateTrapSystems();
+                CreateDiamondSystems();
+                CreateScoreSystems();
             }
-            EndSystemGroup();
+            CloseSystemGroup();
         }
 
-        private void __CreateTrapSystems()
+        protected virtual void CreateWallSystems()
         {
-            StartSystemGroup("TrapSystems");
+            OpenSystemGroup("WallSystems");
             {
-                Add(new PoolSystem(Services, GameSettings.POOL_ID_ENVIRONMENT_TRAPS));
-                Add(new FOVEnvironmentSystem(Contexts, Services));
-                Add(new FOVEnabledEventSystem(Contexts));
-                Add(new RotationEnvironmentSystem(Contexts, Services));
-                //Add(new GenerationMemoryVer1EnvironmentSystem(Contexts, Services, Data));
-                //Add(new GenerationMemoryVer2EnvironmentSystem(Contexts, Services, Data));
-                Add(new GenerationMemoryVer3EnvironmentSystem(Contexts, Services, Data));
+                Add(new PoolSystem(_services, GameSettings.POOL_ID_ENVIRONMENT_WALLS));
+                Add(new WallInitializeSystem(_contexts, _services, _settings, TargetCamera));
+                Add(new WallGenerationSystem(_contexts, _services, _settings, TargetCamera));
+                Add(new WallRandomSystem(_contexts, _settings));
+            }
+            CloseSystemGroup();
+        }
 
-                StartSystemGroup("ContentSystems");
+        protected virtual void CreateTrapSystems()
+        {
+            OpenSystemGroup("TrapSystems");
+            {
+                Add(new PoolSystem(_services, GameSettings.POOL_ID_ENVIRONMENT_TRAPS));
+                Add(new FOVSystem(_contexts, TargetCamera));
+                Add(new FOVEnabledEventSystem(_contexts));
+                Add(new RotationSystem(_contexts));
+                Add(new GenerationMemorySystem(_contexts, _services, _settings));
+
+                if (IsItemExists)
                 {
-                    if (IsItem(ItemBehaviourTypes.Resurrection))
-                        Add(new CoconGenerationEnvironmentSystem(Contexts, Services, Data));
-                    if (IsItem(ItemBehaviourTypes.Luck))
-                        Add(new LuckEnvironmentSystem(Contexts, Services, Data));
-                    if (IsItem(ItemBehaviourTypes.Sonar))
-                        Add(new SonarRequestEnvironmentSystem(Contexts, Services, Data));
+                    OpenSystemGroup("ItemSystems");
+                    {
+                        if (IsInventoryItem(InventoryItemTypes.Cocoon))
+                            Add(new CocoonGenerationSystem(_contexts, _services, _settings));
+                        if (IsInventoryItem(InventoryItemTypes.Luck))
+                            Add(new LuckDifficultySystem(_contexts, _services, _settings));
+                        if (IsInventoryItem(InventoryItemTypes.Sonar))
+                            Add(new SonarRequestSystem(_contexts, _services, _settings));
+                    }
+                    CloseSystemGroup();
                 }
-                EndSystemGroup();
 
-                Add(new GenerationTrapEnvironmentSystem(Contexts, Services, Data));
+                Add(new GenerationTrapSystem(_contexts, _services, _settings, TargetCamera));
             }
-            EndSystemGroup();
+            CloseSystemGroup();
         }
 
-        private void __CreateDiamondSystems()
+        protected virtual void CreateDiamondSystems()
         {
-            StartSystemGroup("DiamondSystems");
+            OpenSystemGroup("DiamondSystems");
             {
-                Add(new PoolSystem(Services, GameSettings.POOL_ID_ENVIRONMENT_DIAMONDS));
-                Add(new GenerationDiamondEnvironmentSystem(Contexts, Services, Data));
-                Add(new DiamondEnvironmentSystem(Contexts, Services, Data));
+                Add(new PoolSystem(_services, GameSettings.POOL_ID_ENVIRONMENT_DIAMONDS));
+                Add(new DiamondGenerationSystem(_contexts, _services, _settings, TargetCamera));
+                Add(new DiamondOnCollidingSystem(_contexts, _services, _settings, TargetCamera));
             }
-            EndSystemGroup();
+            CloseSystemGroup();
         }
 
-        private void __CreateScoreSystems()
+        protected virtual void CreateScoreSystems()
         {
-            StartSystemGroup("ScoreSystems");
+            OpenSystemGroup("ScoreSystems");
             {
-                Add(new PoolSystem(Services, GameSettings.POOL_ID_ENVIRONMENT_SCORE));
-                Add(new InitializeScoreEnvironmentSystem(Contexts, Services, Data));
-                Add(new GenerationScoreEnvironmentSystem(Contexts, Services, Data));
+                Add(new PoolSystem(_services, GameSettings.POOL_ID_ENVIRONMENT_SCORE));
+                Add(new ScoreGenerationSystem(_contexts, _settings, TargetCamera));
+                Add(new ScoreSpawnSystem(_contexts, _services, _settings, TargetCamera));
             }
-            EndSystemGroup();
+            CloseSystemGroup();
         }
 
         protected override void TearDown()
         {
             base.TearDown();
 
-            foreach (var context in Contexts.allContexts)
+            foreach (var context in _contexts.allContexts)
             {
                 context.RemoveAllEventHandlers();
                 context.DestroyAllEntities();
             }
 
             Services.Dispose();
-            Data.Dispose();
+            Settings.Dispose();
 
             GameSettings.PlayCount++;
-            GameSettings.IsDebugMode = false;
-
-            if (!_fightIncluded)
-                AnalyticsService.OnGameStop(_statsData.LastScoreParameter.Value, _statsData.DiamondParameter.Value);
-            else
-                AnalyticsService.OnFightStop(_fightData.FightStatusParameter.Value);
         }
     }
 }

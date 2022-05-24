@@ -5,7 +5,7 @@ namespace GameEngine
     [Flight]
     [Environment]
     [Config]
-    public sealed class EnabledComponent : IComponent
+    public class EnabledComponent : IComponent
     {
     }
 }

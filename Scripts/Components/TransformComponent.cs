@@ -5,7 +5,7 @@ namespace GameEngine
 {
     [Flight]
     [Environment]
-    public sealed class TransformComponent : IComponent
+    public class TransformComponent : IComponent
     {
         public Transform Value;
     }

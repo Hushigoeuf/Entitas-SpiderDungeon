@@ -4,7 +4,7 @@ namespace GameEngine
 {
     [Environment]
     [Flight]
-    public sealed class PoolComponent : IComponent
+    public class PoolComponent : IComponent
     {
         public string Value;
     }

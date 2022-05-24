@@ -2,20 +2,24 @@
 
 namespace GameEngine
 {
-    public sealed class PoolSystem : IInitializeSystem
+    /// <summary>
+    /// Система инициализирует пулы объектов с заданными ID.
+    /// </summary>
+    public class PoolSystem : IInitializeSystem
     {
-        private readonly IPoolService _poolService;
-        private readonly string[] _poolIds;
+        protected IPoolService _poolService;
+        protected string[] _poolIds;
 
         public PoolSystem(Services services, params string[] poolIds)
         {
-            _poolService = services.PoolService;
+            _poolService = services.Pool;
             _poolIds = poolIds;
         }
 
-        public void Initialize()
+        public virtual void Initialize()
         {
-            for (var i = 0; i < _poolIds.Length; i++) _poolService.Create(_poolIds[i]);
+            for (var i = 0; i < _poolIds.Length; i++)
+                _poolService.Create(_poolIds[i]);
         }
     }
 }

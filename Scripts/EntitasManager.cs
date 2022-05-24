@@ -1,59 +1,48 @@
 ﻿using System.Collections.Generic;
 using Entitas;
+using UnityEngine;
 
 namespace GameEngine
 {
-    public abstract class EntitasManager<T> : CustomMonoBehaviour where T: EntitasManager<T>
+    /// <summary>
+    /// Базовый класс менеджера, который обслуживает ECS.
+    /// </summary>
+    public abstract class EntitasManager<T> : MonoBehaviour where T : EntitasManager<T>
     {
-        private Contexts _contexts;
-        private Services _services;
-        private Data _data;
-        private Feature _systems;
+        protected Contexts _contexts;
+        protected Services _services;
+        protected Settings _settings;
+        protected Feature _systems;
 
-        protected Contexts Contexts => _contexts;
-        protected Services Services => _services;
-        protected Data Data => _data;
+        protected readonly List<string> _groupNames = new List<string>();
+        protected readonly List<List<ISystem>> _groupSystems = new List<List<ISystem>>();
 
-        // -------------------------------------------------------------------------------------------------------------
-
-        protected override void Awake()
+        protected virtual void Awake()
         {
-            base.Awake();
-
-#if !GE_DEBUG_DISABLED
-            if (FindObjectsOfType<T>().Length > 1) throw new CustomException();
-#endif
-
             _contexts = Contexts.sharedInstance;
             _services = Services.sharedInstance;
-            _data = Data.sharedInstance;
+            _settings = Settings.sharedInstance;
 
-#if !GE_DEBUG_DISABLED
-            if (Contexts == null) throw new CustomException();
-            if (Services == null) throw new CustomException();
-            if (Data == null) throw new CustomException();
-#endif
+            _systems = new Feature(nameof(T));
 
-            _systems = new Feature("GameSystems");
-
-            Initialize();
+            Initialization();
         }
 
-        // -------------------------------------------------------------------------------------------------------------
-
-        private void Update()
+        protected virtual void Update()
         {
             Execute();
             Cleanup();
         }
 
-        protected override void OnDestroy()
+        protected virtual void OnDestroy()
         {
-            base.OnDestroy();
             TearDown();
         }
 
-        protected virtual void Initialize()
+        /// <summary>
+        /// Инициализирует все системы.
+        /// </summary>
+        protected virtual void Initialization()
         {
             _systems.Initialize();
         }
@@ -68,6 +57,9 @@ namespace GameEngine
             _systems.Cleanup();
         }
 
+        /// <summary>
+        /// Освобождает все системы.
+        /// </summary>
         protected virtual void TearDown()
         {
             _systems.DeactivateReactiveSystems();
@@ -75,81 +67,62 @@ namespace GameEngine
             _systems.TearDown();
         }
 
-        // -------------------------------------------------------------------------------------------------------------
-
-        private readonly List<string> _addGroupNameList = new List<string>();
-        private readonly List<List<ISystem>> _addGroupSystemList = new List<List<ISystem>>();
-
-        protected void Add(ISystem system)
+        /// <summary>
+        /// Открывает новую группу с системами.
+        /// </summary>
+        protected virtual void OpenSystemGroup(string groupName)
         {
-#if !GE_DEBUG_DISABLED
-            if (system == null) throw new CustomArgumentException();
-#endif
-            if (_addGroupNameList.Count != 0)
-            {
-                _addGroupSystemList[_addGroupSystemList.Count - 1].Add(system);
-                return;
-            }
+            if (string.IsNullOrEmpty(groupName)) return;
 
-            _systems.Add(system);
+            _groupNames.Add(groupName);
+            _groupSystems.Add(new List<ISystem>());
         }
 
-        protected void Add(string groupName, params ISystem[] systems)
+        /// <summary>
+        /// Добавляет систему в последнюю группу.
+        /// </summary>
+        protected virtual void Add(ISystem system)
         {
-#if !GE_DEBUG_DISABLED
-            if (string.IsNullOrEmpty(groupName) || systems == null || systems.Length == 0)
-                throw new CustomArgumentException();
-#endif
-            var feature = new Feature(groupName);
-            {
-                for (var i = 0; i < systems.Length; i++)
-                    feature.Add(systems[i]);
-            }
-            Add(feature);
+            if (system == null) return;
+
+            if (_groupNames.Count == 0)
+                _systems.Add(system);
+            else
+                _groupSystems[_groupSystems.Count - 1].Add(system);
         }
 
-        protected void StartSystemGroup(string groupName)
+        /// <summary>
+        /// Закрывает последнюю группу с системами.
+        /// </summary>
+        protected virtual void CloseSystemGroup()
         {
-#if !GE_DEBUG_DISABLED
-            if (string.IsNullOrEmpty(groupName)) throw new CustomArgumentException();
-#endif
-            _addGroupNameList.Add(groupName);
-            _addGroupSystemList.Add(new List<ISystem>());
-        }
-
-        protected void EndSystemGroup()
-        {
-#if !GE_DEBUG_DISABLED
-            if (_addGroupNameList.Count == 0) throw new CustomArgumentException();
-#endif
-
-            var index = _addGroupNameList.Count - 1;
-            if (_addGroupNameList.Count == 1)
+            var index = _groupNames.Count - 1;
+            if (_groupNames.Count == 1)
             {
-                if (_addGroupSystemList[index].Count != 0)
+                if (_groupSystems[index].Count != 0)
                 {
-                    var feature = new Feature(_addGroupNameList[index]);
-                    for (var i = 0; i < _addGroupSystemList[index].Count; i++)
-                        feature.Add(_addGroupSystemList[index][i]);
+                    var feature = new Feature(_groupNames[index]);
+                    for (var i = 0; i < _groupSystems[index].Count; i++)
+                        feature.Add(_groupSystems[index][i]);
                     _systems.Add(feature);
                 }
 
-                _addGroupNameList.Clear();
-                _addGroupSystemList.Clear();
+                _groupNames.Clear();
+                _groupSystems.Clear();
                 return;
             }
 
-            index = _addGroupNameList.Count - 1;
-            if (_addGroupSystemList[index].Count != 0)
+            index = _groupNames.Count - 1;
+            if (_groupSystems[index].Count != 0)
             {
-                var feature = new Feature(_addGroupNameList[index]);
-                for (var i = 0; i < _addGroupSystemList[index].Count; i++)
-                    feature.Add(_addGroupSystemList[index][i]);
-                _addGroupSystemList[index - 1].Add(feature);
+                var feature = new Feature(_groupNames[index]);
+                for (var i = 0; i < _groupSystems[index].Count; i++)
+                    feature.Add(_groupSystems[index][i]);
+                _groupSystems[index - 1].Add(feature);
             }
 
-            _addGroupNameList.RemoveAt(index);
-            _addGroupSystemList.RemoveAt(index);
+            _groupNames.RemoveAt(index);
+            _groupSystems.RemoveAt(index);
         }
     }
 }

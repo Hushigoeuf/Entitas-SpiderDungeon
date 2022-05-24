@@ -4,7 +4,7 @@ namespace GameEngine
 {
     [Flight]
     [Environment]
-    public sealed class LimitComponent : IComponent
+    public class LimitComponent : IComponent
     {
         public float Value;
     }

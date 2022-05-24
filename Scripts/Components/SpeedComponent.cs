@@ -4,7 +4,7 @@ namespace GameEngine
 {
     [Flight]
     [Environment]
-    public sealed class SpeedComponent : IComponent
+    public class SpeedComponent : IComponent
     {
         public float Value;
     }

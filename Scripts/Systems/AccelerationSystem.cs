@@ -1,25 +1,29 @@
 ﻿using System.Collections.Generic;
 using Entitas;
+using UnityEngine;
 
 namespace GameEngine
 {
+    /// <summary>
+    /// Система повышает скорость у сущностей с соответствующим компонентом.
+    /// </summary>
     public abstract class AccelerationSystem<T> : IExecuteSystem where T : Entity
     {
-        protected readonly ITimeService _timeService;
         protected IGroup<T> _group;
         protected List<T> _buffer;
 
-        public AccelerationSystem(Contexts contexts, Services services)
+        public AccelerationSystem()
         {
-            _timeService = services.TimeService;
             _buffer = new List<T>();
         }
 
-        public void Execute()
+        public virtual void Execute()
         {
             if (_group.count == 0) return;
+
             _group.GetEntities(_buffer);
-            for (var i = 0; i < _buffer.Count; i++) Execute(_buffer[i]);
+            for (var i = 0; i < _buffer.Count; i++)
+                Execute(_buffer[i]);
         }
 
         protected virtual void Execute(T entity)
@@ -27,9 +31,9 @@ namespace GameEngine
         }
     }
 
-    public sealed class AccelerationFlightSystem : AccelerationSystem<FlightEntity>
+    public class AccelerationFlightSystem : AccelerationSystem<FlightEntity>
     {
-        public AccelerationFlightSystem(Contexts contexts, Services services) : base(contexts, services)
+        public AccelerationFlightSystem(Contexts contexts) : base()
         {
             _group = contexts.flight.GetGroup(FlightMatcher.AllOf(
                 FlightMatcher.Speed,
@@ -38,13 +42,13 @@ namespace GameEngine
 
         protected override void Execute(FlightEntity entity)
         {
-            entity.ReplaceSpeed(entity.speed.Value + entity.acceleration.Value * _timeService.DeltaTime);
+            entity.ReplaceSpeed(entity.speed.Value + entity.acceleration.Value * Time.deltaTime);
         }
     }
 
-    public sealed class AccelerationEnvironmentSystem : AccelerationSystem<EnvironmentEntity>
+    public class AccelerationEnvironmentSystem : AccelerationSystem<EnvironmentEntity>
     {
-        public AccelerationEnvironmentSystem(Contexts contexts, Services services) : base(contexts, services)
+        public AccelerationEnvironmentSystem(Contexts contexts) : base()
         {
             _group = contexts.environment.GetGroup(EnvironmentMatcher.AllOf(
                 EnvironmentMatcher.Speed,
@@ -53,7 +57,7 @@ namespace GameEngine
 
         protected override void Execute(EnvironmentEntity entity)
         {
-            entity.ReplaceSpeed(entity.speed.Value + entity.acceleration.Value * _timeService.DeltaTime);
+            entity.ReplaceSpeed(entity.speed.Value + entity.acceleration.Value * Time.deltaTime);
         }
     }
 }

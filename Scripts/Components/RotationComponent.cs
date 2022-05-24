@@ -3,7 +3,7 @@
 namespace GameEngine
 {
     [Flight][Environment]
-    public sealed class RotationComponent : IComponent
+    public class RotationComponent : IComponent
     {
     }
 }

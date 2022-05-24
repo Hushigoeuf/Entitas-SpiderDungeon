@@ -13,7 +13,7 @@
                 return _sharedInstance;
             }
         }
-        
+
         public static void Dispose()
         {
             _sharedInstance = null;
@@ -22,11 +22,9 @@
 
     public partial class Services
     {
-        public ITimeService TimeService;
-        public IPoolService PoolService;
-        public IRandomService RandomService;
-        public ICameraService CameraService;
-        public ISceneService SceneService;
-        public IDataService DataService;
+        public ISaveDataService SaveData = DefaultServices.SaveData;
+        public IPoolService Pool = DefaultServices.Pool;
+        public IRandomService Random = DefaultServices.Random;
+        public ILocalizationService Localization = DefaultServices.Localization;
     }
 }

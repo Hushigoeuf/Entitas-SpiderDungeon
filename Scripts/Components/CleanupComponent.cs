@@ -7,7 +7,7 @@ namespace GameEngine
     [Environment]
     [Flight]
     [Cleanup(CleanupMode.DestroyEntity)]
-    public sealed class CleanupComponent : IComponent
+    public class CleanupComponent : IComponent
     {
     }
 }

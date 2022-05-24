@@ -4,42 +4,35 @@ namespace GameEngine
 {
     public abstract class GameEntitasBehaviour : EntitasBehaviour
     {
-        private ConfigEntity _mainConfigEntity;
-        private bool _isGameOver;
+        /// Создана ли главная сущность с параметрами игры
+        protected bool IsMainConfig => _contexts.config.isMainConfig;
 
-        protected bool IsMainConfig => Contexts.config.isMainConfig;
-        protected ConfigEntity MainConfigEntity => _mainConfigEntity;
-        protected bool IsGameOver => IsMainConfig && MainConfigEntity.isGameOver;
-        
-        protected override void Start()
+        /// Возвращает главную сущность с параметрами игры
+        protected ConfigEntity MainConfig => _contexts.config.mainConfigEntity;
+
+        /// Является ли игра проигранной на данный момент
+        protected bool IsGameOver => IsMainConfig && MainConfig.isGameOver;
+
+        protected virtual void Start()
         {
-            base.Start();
-
-            if (Contexts.config.isMainConfig)
-            {
-                _mainConfigEntity = Contexts.config.mainConfigEntity;
-                _mainConfigEntity.OnComponentAdded += _OnComponentAddedToMainConfigEntity;
-                _mainConfigEntity.OnDestroyEntity += _OnDestroyMainConfigEntity;
-            }
+            if (IsMainConfig) MainConfig.OnComponentAdded += OnComponentAddedToMainConfig;
         }
 
-        private void _OnComponentAddedToMainConfigEntity(IEntity entity, int index, IComponent component)
+        /// <summary>
+        /// Вылавливает статус проигрыша, что вызвать соответствующий метод.
+        /// </summary>
+        protected virtual void OnComponentAddedToMainConfig(IEntity entity, int index, IComponent component)
         {
-            if (_mainConfigEntity.isGameOver && !_isGameOver)
-            {
-                _isGameOver = true;
-                OnGameOver();
-            }
+            if (!MainConfig.isGameOver) return;
 
-            _mainConfigEntity.OnComponentAdded -= _OnComponentAddedToMainConfigEntity;
+            OnGameOver();
+
+            MainConfig.OnComponentAdded -= OnComponentAddedToMainConfig;
         }
 
-        private void _OnDestroyMainConfigEntity(IEntity entity)
-        {
-            _mainConfigEntity.OnDestroyEntity -= _OnDestroyMainConfigEntity;
-            _mainConfigEntity = null;
-        }
-
+        /// <summary>
+        /// Вызывает единожды во время проигрыша.
+        /// </summary>
         protected virtual void OnGameOver()
         {
         }

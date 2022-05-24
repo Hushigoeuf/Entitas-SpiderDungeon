@@ -5,7 +5,7 @@ namespace GameEngine
 {
     [Environment]
     [Config]
-    public sealed class PositionComponent : IComponent
+    public class PositionComponent : IComponent
     {
         public Vector3 Value;
     }
