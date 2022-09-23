@@ -1,6 +1,6 @@
 # Entitas-SpiderDungeon
  
-Часть кода из игры Spider Dungeon, которая частично построена на ECS архитектуре.
+Исходный код из игры Spider Dungeon, которая частично построена на ECS архитектуре.
 
 В качестве ECS применяется стороннее решение [Entitas](https://github.com/sschmid/Entitas-CSharp).
 
