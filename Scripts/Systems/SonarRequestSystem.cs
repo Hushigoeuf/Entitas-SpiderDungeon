@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Обрабатывает GenerationMemory и отправляет запрос для отображения положения препятствий.
-    /// </summary>
-    public sealed class SonarRequestSystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
+    public class SonarRequestSystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly IRandomService _randomService;
@@ -89,7 +86,6 @@ namespace GameEngine
                     if (count <= 0) break;
                 }
 
-                // Отправляет запрос на отображение
                 var e = _contexts.config.CreateEntity();
                 {
                     e.isSonarRequest = true;

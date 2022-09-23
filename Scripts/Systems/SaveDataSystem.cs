@@ -2,10 +2,7 @@
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Сохраняет данные в реестр сохранений.
-    /// </summary>
-    public sealed class SaveDataSystem : IInitializeSystem, ITearDownSystem
+    public class SaveDataSystem : IInitializeSystem, ITearDownSystem
     {
         private Contexts _contexts;
         private StatSettings _statSettings;
@@ -43,7 +40,7 @@ namespace GameEngine
             _statSettings.DeathCountParameter.Value += _eStatConfig.deathCount.NoCategoryCount;
             foreach (var t in _trapSettings.Types)
             {
-                var c = _eStatConfig.deathCount.CategoryCounts[t.GetInstanceID()];
+                int c = _eStatConfig.deathCount.CategoryCounts[t.GetInstanceID()];
                 t.DeathCounter.Value += c;
                 _statSettings.DeathCountParameter.Value += c;
             }

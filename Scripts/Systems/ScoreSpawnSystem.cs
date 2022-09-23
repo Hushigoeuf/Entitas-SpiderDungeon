@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Создает невидимые препятствия, которые ведут игровой счет после столкновения с персонажами.
-    /// </summary>
-    public sealed class ScoreSpawnSystem : ReactiveSystem<EnvironmentEntity>
+    public class ScoreSpawnSystem : ReactiveSystem<EnvironmentEntity>
     {
         private readonly Contexts _contexts;
         private readonly ScoreSettings _scoreSettings;

@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Заполняет информацию в GenerationMemory специально для учебного уровня.
-    /// </summary>
-    public sealed class GenerationTutorialSystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
+    public class GenerationTutorialSystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly TrapPrefab[] _traps;
@@ -26,7 +23,7 @@ namespace GameEngine
 
             _traps = new TrapPrefab[count];
             _checkers = new TrapChecker[count];
-            var index = -1;
+            int index = -1;
             foreach (var t in settings.TrapSettings.Types)
             foreach (var p in t.Prefabs)
             {
@@ -83,7 +80,7 @@ namespace GameEngine
                 if (_lastTrapIndex >= _traps.Length)
                     _lastTrapIndex = 0;
 
-                for (var i = _lastTrapIndex; i < _traps.Length; i++)
+                for (int i = _lastTrapIndex; i < _traps.Length; i++)
                 {
                     if (!Check(_checkers[i])) continue;
                     _memoryEntity.generationMemory.PrefabList.Add(_traps[i].Prefab);

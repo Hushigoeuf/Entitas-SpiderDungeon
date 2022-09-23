@@ -4,7 +4,7 @@
     /// Сервис для работы с реестром сохранений на основе EasySave 3.
     /// Источник: https://assetstore.unity.com/packages/tools/utilities/easy-save-the-complete-save-data-serialization-system-768
     /// </summary>
-    public sealed class EasySaveDataService : ISaveDataService
+    public class EasySaveDataService : ISaveDataService
     {
         public bool KeyExists(string key) => ES3.KeyExists(key);
 

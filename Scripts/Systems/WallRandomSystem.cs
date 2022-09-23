@@ -3,10 +3,7 @@ using Entitas;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Меняет спрайты стен на рандомизированные.
-    /// </summary>
-    public sealed class WallRandomSystem : ReactiveSystem<EnvironmentEntity>
+    public class WallRandomSystem : ReactiveSystem<EnvironmentEntity>
     {
         private readonly Contexts _contexts;
         private readonly WallSettings _wallSettings;

@@ -2,15 +2,11 @@
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Обрабатывает столкновения персонажа с коконами.
-    /// </summary>
     [AddComponentMenu(nameof(GameEngine) + "/" + nameof(CocoonActivated))]
-    public sealed class CocoonActivated : GameEntitasBehaviour
+    public class CocoonActivated : GameEntitasBehaviour
     {
         private void OnTriggerEnter2D(Collider2D collider)
         {
-            if (!collider.CompareTag(GameSettings.TAG_COCOON)) return;
             if (!IsMainConfig) return;
             if (!IsGameOver) return;
 

@@ -2,10 +2,7 @@
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Уменьшает скорость движения если стоит предмет на удачу.
-    /// </summary>
-    public sealed class LuckSpeedSystem : IInitializeSystem
+    public class LuckSpeedSystem : IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly ItemSettings _contentSettings;

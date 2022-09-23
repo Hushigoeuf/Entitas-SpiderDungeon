@@ -3,10 +3,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Инициализирует генерацию объектов для ведения игрового счета.
-    /// </summary>
-    public sealed class ScoreGenerationSystem : IInitializeSystem
+    public class ScoreGenerationSystem : IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly TrapSettings _trapSettings;

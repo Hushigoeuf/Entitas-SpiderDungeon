@@ -2,10 +2,7 @@
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Иниализирует сущности для управления отрядом.
-    /// </summary>
-    public sealed class InputInitSystem : IInitializeSystem
+    public class InputInitSystem : IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly FlightSettings _flightSettings;
@@ -18,27 +15,29 @@ namespace GameEngine
 
         public void Initialize()
         {
-            // Создает сущность, чтобы двигать персонажей в левую сторону
-            var e = _contexts.flight.CreateEntity();
+            var e = CreateInputEntity();
             {
                 e.isLeftPointer = true;
                 e.isControlled = true;
-                e.AddRate(0);
-                e.AddSpeed(_flightSettings.InputSpeed);
-                e.AddOffset(_flightSettings.InputStartOffset);
-                e.AddLimit(_flightSettings.InputLimit);
             }
 
-            // Создает сущность, чтобы двигать персонажей в правую сторону
-            e = _contexts.flight.CreateEntity();
+            e = CreateInputEntity();
             {
                 e.isRightPointer = true;
                 e.isControlled = true;
+            }
+        }
+
+        private FlightEntity CreateInputEntity()
+        {
+            var e = _contexts.flight.CreateEntity();
+            {
                 e.AddRate(0);
                 e.AddSpeed(_flightSettings.InputSpeed);
                 e.AddOffset(_flightSettings.InputStartOffset);
                 e.AddLimit(_flightSettings.InputLimit);
             }
+            return e;
         }
     }
 }

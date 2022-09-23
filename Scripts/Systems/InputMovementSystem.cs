@@ -3,10 +3,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Двигает отряд в заданную сторону в ручном режиме.
-    /// </summary>
-    public sealed class InputMovementSystem : IExecuteSystem
+    public class InputMovementSystem : IExecuteSystem
     {
         private Contexts _contexts;
 

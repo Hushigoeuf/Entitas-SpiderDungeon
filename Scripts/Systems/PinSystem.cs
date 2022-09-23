@@ -3,10 +3,7 @@ using Entitas;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Привязывает позицию объекта к заданной цели.
-    /// </summary>
-    public sealed class PinSystem : IExecuteSystem
+    public class PinSystem : IExecuteSystem
     {
         private readonly IGroup<FlightEntity> _entities;
         private readonly List<FlightEntity> _buffer;

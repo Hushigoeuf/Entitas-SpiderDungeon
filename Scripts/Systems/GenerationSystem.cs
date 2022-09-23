@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    public sealed class GenerationSystem : IExecuteSystem
+    public class GenerationSystem : IExecuteSystem
     {
         private readonly IGroup<EnvironmentEntity> _group;
         private readonly List<EnvironmentEntity> _buffer;
@@ -26,8 +26,8 @@ namespace GameEngine
         {
             foreach (var e in _group.GetEntities(_buffer))
             {
-                var lastPosition = e.position.Value.y + e.length.Value * e.index.Value;
-                var currentPosition = e.transform.Value.position.y + e.offset.Value;
+                float lastPosition = e.position.Value.y + e.length.Value * e.index.Value;
+                float currentPosition = e.transform.Value.position.y + e.offset.Value;
                 if (currentPosition <= lastPosition) continue;
 
                 e.ReplaceIndex(e.index.Value + 1);

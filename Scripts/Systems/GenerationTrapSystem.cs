@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Создает препятствия на основе GenerationMemory.
-    /// </summary>
-    public sealed class GenerationTrapSystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
+    public class GenerationTrapSystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly IPoolService _poolService;
@@ -25,8 +22,8 @@ namespace GameEngine
 
         public void Initialize()
         {
-            var size = _trapSettings.GenerationStepSize;
-            var count = Mathf.CeilToInt(ScreenSettings.CurrentTransformHeight / 2f / size);
+            float size = _trapSettings.GenerationStepSize;
+            int count = Mathf.CeilToInt(ScreenSettings.CurrentTransformHeight / 2f / size);
             var eGeneration = _contexts.environment.CreateEntity();
             {
                 eGeneration.isGeneration = true;

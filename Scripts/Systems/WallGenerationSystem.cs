@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Создает стены по мере продвижения персонажей.
-    /// </summary>
-    public sealed class WallGenerationSystem : ReactiveSystem<EnvironmentEntity>
+    public class WallGenerationSystem : ReactiveSystem<EnvironmentEntity>
     {
         private readonly WallSettings _settings;
         private readonly IPoolService _poolService;

@@ -2,9 +2,6 @@
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Базовый класс типа MonoBehaviour для работы с ECS (Entitas).
-    /// </summary>
     public abstract class EntitasBehaviour : MonoBehaviour
     {
         protected Contexts _contexts;

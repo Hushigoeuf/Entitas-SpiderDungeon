@@ -3,11 +3,7 @@ using Entitas;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Обрабатывает персонажей с черной меткой при столкновении с препятствиями,
-    /// и оценивает возможность фактического уничтожения персонажа.
-    /// </summary>
-    public sealed class DeathStatusSystem : ReactiveSystem<FlightEntity>
+    public class DeathStatusSystem : ReactiveSystem<FlightEntity>
     {
         private readonly IGroup<FlightEntity> _characterGroup;
         private readonly List<FlightEntity> _buffer = new List<FlightEntity>();

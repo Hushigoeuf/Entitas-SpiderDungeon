@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Создает алмазы на основе GenerationMemory.
-    /// </summary>
-    public sealed class DiamondGenerationSystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
+    public class DiamondGenerationSystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly IRandomService _randomService;
@@ -94,80 +91,89 @@ namespace GameEngine
 
         private void Execute(EnvironmentEntity entity)
         {
-            var positionY = entity.position.Value.y;
+            var startPosition = entity.position.Value.y;
             var distancePerDiamond = _diamondSettings.DistancePerDiamond;
 
+            EvaluateVerticalFreeSpaces();
+
+            if (_verticalFreeSpaces[0] != 0 ||
+                _verticalFreeSpaces[1] != 0 ||
+                _verticalFreeSpaces[2] != 0 ||
+                _verticalFreeSpaces[3] != 0)
+            {
+                CreateDiamondsWhenVerticalDropChance(startPosition, distancePerDiamond);
+                return;
+            }
+
+            if (_randomService.IsChance(_diamondSettings.HorizontalDropChance))
+                CreateDiamondsWhenHorizontalDropChance(startPosition, distancePerDiamond);
+        }
+
+        private void EvaluateVerticalFreeSpaces()
+        {
             for (var i = 0; i < _verticalFreeSpaces.Length; i++)
             {
                 _verticalFreeSpaces[i] = 0;
                 if (_memoryPosition[i] == 0 || _memoryEntity.generationMemory.DiamondFreeSpaces[i])
                     _verticalFreeSpaces[i] = 1;
             }
+        }
 
-            // Создает алмазы по вертикали если позволяют условия
-            if (_verticalFreeSpaces[0] != 0 ||
-                _verticalFreeSpaces[1] != 0 ||
-                _verticalFreeSpaces[2] != 0 ||
-                _verticalFreeSpaces[3] != 0)
+        private void CreateDiamondsWhenVerticalDropChance(float startPosition, float distancePerDiamond)
+        {
+            var count = _randomService.Range(_diamondSettings.MinDropCountPerOnce,
+                _diamondSettings.MaxDropCountPerOnce,
+                true);
+            var distancePerColumn = GameSettings.GENERATION_GATE_SIZE;
+
+            if (_verticalFreeSpaces[0] != 0) _positionBuffer.Add(0 - distancePerColumn - distancePerColumn / 2);
+            if (_verticalFreeSpaces[1] != 0) _positionBuffer.Add(0 - distancePerColumn / 2);
+            if (_verticalFreeSpaces[2] != 0) _positionBuffer.Add(0 + distancePerColumn / 2);
+            if (_verticalFreeSpaces[3] != 0) _positionBuffer.Add(0 + distancePerColumn + distancePerColumn / 2);
+
+            if (_positionBuffer.Count == 1 || !_randomService.IsChance(_diamondSettings.SplitChance))
             {
-                var count = _randomService.Range(_diamondSettings.MinDropCountPerOnce,
-                    _diamondSettings.MaxDropCountPerOnce,
+                var first = _positionBuffer[0];
+                _positionBuffer.Clear();
+                _positionBuffer.Add(first);
+            }
+            else
+            {
+                count = _randomService.Range(_diamondSettings.MinDropCountPerSplit,
+                    _diamondSettings.MaxDropCountPerSplit,
                     true);
-                var distancePerColumn = GameSettings.GENERATION_GATE_SIZE;
+            }
 
-                if (_verticalFreeSpaces[0] != 0) _positionBuffer.Add(0 - distancePerColumn - distancePerColumn / 2);
-                if (_verticalFreeSpaces[1] != 0) _positionBuffer.Add(0 - distancePerColumn / 2);
-                if (_verticalFreeSpaces[2] != 0) _positionBuffer.Add(0 + distancePerColumn / 2);
-                if (_verticalFreeSpaces[3] != 0) _positionBuffer.Add(0 + distancePerColumn + distancePerColumn / 2);
+            startPosition += count * distancePerDiamond / 2f - distancePerDiamond / 2;
+            for (var pi = 0; pi < _positionBuffer.Count; pi++)
+            for (var i = 0; i < count; i++)
+                CreateDiamond(_positionBuffer[pi], startPosition - distancePerDiamond * i);
 
-                if (_positionBuffer.Count == 1 || !_randomService.IsChance(_diamondSettings.SplitChance))
+            _positionBuffer.Clear();
+        }
+
+        private void CreateDiamondsWhenHorizontalDropChance(float startPosition, float distancePerDiamond)
+        {
+            var count = _randomService.Range(_diamondSettings.MinDropCountForHorizontal,
+                _diamondSettings.MaxDropCountForHorizontal, true);
+            var positionX = 0f - count * distancePerDiamond / 2f + distancePerDiamond / 2;
+            startPosition += _trapSettings.GenerationStepSize / 2;
+
+            var doubleSplit = _diamondSettings.HorizontalSplitChance > 0 &&
+                              _randomService.IsChance(_diamondSettings.HorizontalSplitChance);
+
+            for (var i = 0; i < count; i++)
+                if (doubleSplit)
                 {
-                    var first = _positionBuffer[0];
-                    _positionBuffer.Clear();
-                    _positionBuffer.Add(first);
+                    CreateDiamond(positionX + distancePerDiamond * i, startPosition + 1.5f);
+                    CreateDiamond(positionX + distancePerDiamond * i, startPosition - 1.5f);
                 }
                 else
                 {
-                    count = _randomService.Range(_diamondSettings.MinDropCountPerSplit,
-                        _diamondSettings.MaxDropCountPerSplit,
-                        true);
+                    CreateDiamond(positionX + distancePerDiamond * i, startPosition);
                 }
-
-                positionY += count * distancePerDiamond / 2f - distancePerDiamond / 2;
-                for (var pi = 0; pi < _positionBuffer.Count; pi++)
-                for (var i = 0; i < count; i++)
-                    CreateDiamond(_positionBuffer[pi], positionY - distancePerDiamond * i);
-
-                _positionBuffer.Clear();
-                return;
-            }
-
-            // Создает алмазы по горизонтали если позволяют условия
-            if (_randomService.IsChance(_diamondSettings.HorizontalDropChance))
-            {
-                var count = _randomService.Range(_diamondSettings.MinDropCountForHorizontal,
-                    _diamondSettings.MaxDropCountForHorizontal, true);
-                var positionX = 0f - count * distancePerDiamond / 2f + distancePerDiamond / 2;
-                positionY += _trapSettings.GenerationStepSize / 2;
-
-                var doubleSplit = _diamondSettings.HorizontalSplitChance > 0 &&
-                                  _randomService.IsChance(_diamondSettings.HorizontalSplitChance);
-                for (var i = 0; i < count; i++)
-                    if (doubleSplit)
-                    {
-                        CreateDiamond(positionX + distancePerDiamond * i, positionY + 1.5f);
-                        CreateDiamond(positionX + distancePerDiamond * i, positionY - 1.5f);
-                    }
-                    else
-                    {
-                        CreateDiamond(positionX + distancePerDiamond * i, positionY);
-                    }
-            }
         }
 
-        /// <summary>
-        /// Создает алмаз в заданной позиции.
-        /// </summary>
         private void CreateDiamond(float x, float y)
         {
             var targetPrefab = _diamondSettings.DefaultPrefab;

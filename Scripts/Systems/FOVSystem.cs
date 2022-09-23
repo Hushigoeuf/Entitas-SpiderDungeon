@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Вычисляет позицию объектов и определяет, находится ли объект в видимое зоне.
-    /// </summary>
-    public sealed class FOVSystem : IExecuteSystem, ICleanupSystem
+    public class FOVSystem : IExecuteSystem, ICleanupSystem
     {
         private readonly IGroup<EnvironmentEntity> _entities;
         private readonly List<EnvironmentEntity> _buffer;
@@ -22,7 +19,7 @@ namespace GameEngine
 
         public void Execute()
         {
-            var topPointPosition = ScreenSettings.GetTopScreenPoint(_camera.position.y);
+            float topPointPosition = ScreenSettings.GetTopScreenPoint(_camera.position.y);
 
             _entities.GetEntities(_buffer);
             for (var i = 0; i < _buffer.Count; i++)

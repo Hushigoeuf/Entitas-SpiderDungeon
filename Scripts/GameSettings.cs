@@ -4,16 +4,9 @@
     {
         #region CONST_PARAMETERS
 
-        /// Ширина одного прохода если разделить уровень по горизонтали на 4 части
         public const float GENERATION_GATE_SIZE = 3.5f;
-
-        /// Все предметы всегда работают вне зависимости от их состояния
         public const bool ITEM_ALWAYS_WORKING = false;
-
-        /// Должны ли предметы с временем жизни тратить это время в меню игры
         public const bool LIFETIME_LESS_ON_MENU = true;
-
-        /// Предметы всегда экипированы вне зависимости от их состояния
         public const bool ITEM_ALWAYS_EQUIP = true;
 
         #endregion
@@ -39,7 +32,6 @@
 
         #region DYNAMIC_PARAMETERS
 
-        /// Кол-во игр за текущую сессию
         public static int PlayCount;
 
         #endregion

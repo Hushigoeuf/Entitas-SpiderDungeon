@@ -3,10 +3,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Создает стартовые стены и инициализирует дальнейшую генерацию.
-    /// </summary>
-    public sealed class WallInitializeSystem : IInitializeSystem
+    public class WallInitializeSystem : IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly IPoolService _poolService;
@@ -79,7 +76,6 @@ namespace GameEngine
                 }
             }
 
-            // Инициализирует генерацию стен в дальнейшем
             {
                 var count = Mathf.CeilToInt(ScreenSettings.CurrentTransformHeight / 2f / _unitsPerWall);
 

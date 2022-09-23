@@ -4,9 +4,6 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// ECS-менеджер для основной сцены игры.
-    /// </summary>
     [AddComponentMenu(nameof(GameEngine) + "/" + nameof(GameEntitasManager))]
     public class GameEntitasManager : EntitasManager<GameEntitasManager>
     {
@@ -90,6 +87,16 @@ namespace GameEngine
 
         protected virtual void CreateSystems()
         {
+            CreateConfigSystems();
+            CreateItemSystemsAfter();
+            CreateFlightSystems();
+            CreateEnvironmentSystems();
+            CreateItemSystemsBefore();
+            CreateOtherSystems();
+        }
+
+        private void CreateConfigSystems()
+        {
             OpenSystemGroup("ConfigSystems");
             {
                 Add(new ConfigInitSystem(_contexts, _services, _settings, SkipStepCount));
@@ -98,47 +105,40 @@ namespace GameEngine
                 Add(new SaveDataSystem(_contexts, _settings));
             }
             CloseSystemGroup();
+        }
 
-            if (IsItemExists)
+        private void CreateItemSystemsAfter()
+        {
+            if (!IsItemExists) return;
+
+            OpenSystemGroup("ItemSystems");
             {
-                OpenSystemGroup("ItemSystems");
-                {
-                    Add(new ItemSystem(_contexts, _settings));
-                    if (IsBonusItem(BonusItemTypes.Efficiency))
-                        Add(new EfficiencyItemSystem(_contexts, _settings));
-                    if (IsBonusItem(BonusItemTypes.MagnitudeField))
-                        Add(new MagnitudeDiamondSystem(_contexts));
-                }
-                CloseSystemGroup();
-            }
-
-            CreateFlightSystems();
-            CreateEnvironmentSystems();
-
-            if (IsItemExists)
-            {
-                OpenSystemGroup("ItemSystems");
-                {
-                    if (IsInventoryItem(InventoryItemTypes.Sonar))
-                        Add(new SonarItemSystem(_contexts, _settings, TargetCamera));
-                    if (IsInventoryItem(InventoryItemTypes.Cocoon))
-                        Add(new CocoonOnCollidingSystem(_contexts, _settings));
-                    if (IsInventoryItem(InventoryItemTypes.AdditionalLife))
-                        Add(new LifeItemSystem(_contexts, _settings));
-                }
-                CloseSystemGroup();
-            }
-
-            OpenSystemGroup("OtherSystems");
-            {
-                //Add(new ConfigCleanupSystems(_contexts));
-                //Add(new FlightCleanupSystems(_contexts));
-                //Add(new EnvironmentCleanupSystems(_contexts));
+                Add(new ItemSystem(_contexts, _settings));
+                if (IsBonusItem(BonusItemTypes.Efficiency))
+                    Add(new EfficiencyItemSystem(_contexts, _settings));
+                if (IsBonusItem(BonusItemTypes.MagnitudeField))
+                    Add(new MagnitudeDiamondSystem(_contexts));
             }
             CloseSystemGroup();
         }
 
-        protected virtual void CreateFlightSystems()
+        private void CreateItemSystemsBefore()
+        {
+            if (!IsItemExists) return;
+
+            OpenSystemGroup("ItemSystems");
+            {
+                if (IsInventoryItem(InventoryItemTypes.Sonar))
+                    Add(new SonarItemSystem(_contexts, _settings, TargetCamera));
+                if (IsInventoryItem(InventoryItemTypes.Cocoon))
+                    Add(new CocoonOnCollidingSystem(_contexts, _settings));
+                if (IsInventoryItem(InventoryItemTypes.AdditionalLife))
+                    Add(new LifeItemSystem(_contexts, _settings));
+            }
+            CloseSystemGroup();
+        }
+
+        private void CreateFlightSystems()
         {
             OpenSystemGroup("FlightSystems");
             {
@@ -185,7 +185,7 @@ namespace GameEngine
             CloseSystemGroup();
         }
 
-        protected virtual void CreateEnvironmentSystems()
+        private void CreateEnvironmentSystems()
         {
             OpenSystemGroup("EnvironmentSystems");
             {
@@ -202,7 +202,7 @@ namespace GameEngine
             CloseSystemGroup();
         }
 
-        protected virtual void CreateWallSystems()
+        private void CreateWallSystems()
         {
             OpenSystemGroup("WallSystems");
             {
@@ -214,7 +214,7 @@ namespace GameEngine
             CloseSystemGroup();
         }
 
-        protected virtual void CreateTrapSystems()
+        private void CreateTrapSystems()
         {
             OpenSystemGroup("TrapSystems");
             {
@@ -243,7 +243,7 @@ namespace GameEngine
             CloseSystemGroup();
         }
 
-        protected virtual void CreateDiamondSystems()
+        private void CreateDiamondSystems()
         {
             OpenSystemGroup("DiamondSystems");
             {
@@ -254,13 +254,24 @@ namespace GameEngine
             CloseSystemGroup();
         }
 
-        protected virtual void CreateScoreSystems()
+        private void CreateScoreSystems()
         {
             OpenSystemGroup("ScoreSystems");
             {
                 Add(new PoolSystem(_services, GameSettings.POOL_ID_ENVIRONMENT_SCORE));
                 Add(new ScoreGenerationSystem(_contexts, _settings, TargetCamera));
                 Add(new ScoreSpawnSystem(_contexts, _services, _settings, TargetCamera));
+            }
+            CloseSystemGroup();
+        }
+
+        private void CreateOtherSystems()
+        {
+            OpenSystemGroup("OtherSystems");
+            {
+                //Add(new ConfigCleanupSystems(_contexts));
+                //Add(new FlightCleanupSystems(_contexts));
+                //Add(new EnvironmentCleanupSystems(_contexts));
             }
             CloseSystemGroup();
         }

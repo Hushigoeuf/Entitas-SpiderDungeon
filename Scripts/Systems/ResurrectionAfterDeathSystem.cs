@@ -3,10 +3,7 @@ using Entitas;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Следит за жизнью персонажей и отправляет запрос на воскрешение.
-    /// </summary>
-    public sealed class ResurrectionAfterDeathSystem : ReactiveSystem<FlightEntity>
+    public class ResurrectionAfterDeathSystem : ReactiveSystem<FlightEntity>
     {
         private readonly Contexts _contexts;
 

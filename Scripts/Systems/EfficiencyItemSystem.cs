@@ -3,10 +3,7 @@ using Entitas;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Повышает уровень предметов если работает предмет на эффективность.
-    /// </summary>
-    public sealed class EfficiencyItemSystem : ReactiveSystem<ConfigEntity>
+    public class EfficiencyItemSystem : ReactiveSystem<ConfigEntity>
     {
         private readonly ItemSettings _settings;
         private readonly IGroup<ConfigEntity> _group;

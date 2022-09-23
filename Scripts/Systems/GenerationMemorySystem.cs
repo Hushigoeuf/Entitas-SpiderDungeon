@@ -4,13 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Заполняет GenerationMemory рандомизированной информацией.
-    /// Эта информация показывает какие препятствия можно создать, где можно создать алмазы.
-    /// GenerationMemory специальный компонент, который содержит такую информацию.
-    /// И может использоваться другими системами.
-    /// </summary>
-    public sealed class GenerationMemorySystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
+    public class GenerationMemorySystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
     {
         private const int MIN_GATE_INDEX = 0;
         private const int MAX_GATE_INDEX = 3;
@@ -41,7 +35,7 @@ namespace GameEngine
 
             _traps = new TrapPrefab[count];
             _checkers = new TrapChecker[count];
-            var index = -1;
+            int index = -1;
             foreach (var t in settings.TrapSettings.Types)
             foreach (var p in t.Prefabs)
             {
@@ -93,9 +87,6 @@ namespace GameEngine
             Step_5_StopGeneration();
         }
 
-        /// <summary>
-        /// Сбрасывает последнюю информацию из памяти.
-        /// </summary>
         private void Step_0_StartGeneration()
         {
             if (_memoryEntity.generationMemory.PrefabList.Count != 0)
@@ -105,16 +96,12 @@ namespace GameEngine
                 _memoryEntity.generationMemory.DiamondFreeSpaces[i] = false;
         }
 
-        /// <summary>
-        /// Находит свободный целевой проход, который не будет затронут препятствием.
-        /// Уровень имеет 4 прохода - разделение по горизонтали.
-        /// </summary>
         private void Step_1_GenerateGateIndex()
         {
-            var range = MAX_GATE_RANGE > 0 ? MAX_GATE_RANGE : !SAME_GATE_ENABLED ? 1 : 0;
-            var min = _genGateIndex != -1 ? _genGateIndex - range : MIN_GATE_INDEX;
+            int range = MAX_GATE_RANGE > 0 ? MAX_GATE_RANGE : !SAME_GATE_ENABLED ? 1 : 0;
+            int min = _genGateIndex != -1 ? _genGateIndex - range : MIN_GATE_INDEX;
             if (min < MIN_GATE_INDEX) min = MIN_GATE_INDEX;
-            var max = _genGateIndex != -1 ? _genGateIndex + range : MAX_GATE_INDEX;
+            int max = _genGateIndex != -1 ? _genGateIndex + range : MAX_GATE_INDEX;
             if (max > MAX_GATE_INDEX) max = MAX_GATE_INDEX;
 
             if (!SAME_GATE_ENABLED)
@@ -123,7 +110,7 @@ namespace GameEngine
                 else if (max == _genGateIndex) max--;
             }
 
-            var requiredGateIndex = _genGateIndex;
+            int requiredGateIndex = _genGateIndex;
             for (var i = 0; i < 128; i++)
             {
                 requiredGateIndex = _randomService.Range(min, max, true);
@@ -134,9 +121,6 @@ namespace GameEngine
             _genGateIndex = requiredGateIndex;
         }
 
-        /// <summary>
-        /// Заполняет целевой список проверенными препятствиями, которые соответствуют текущими условиями.
-        /// </summary>
         private void Step_2_GenerateVerifiedIndexes()
         {
             for (var i = 0; i < _traps.Length; i++)
@@ -156,9 +140,6 @@ namespace GameEngine
             return true;
         }
 
-        /// <summary>
-        /// Заполняет целевой список рандомизированными препятствиями на основе проверенного списка.
-        /// </summary>
         private void Step_3_GenerateRandomIndexes()
         {
             for (var j = 0; j < 2; j++)
@@ -166,8 +147,8 @@ namespace GameEngine
                 _randomService.Shuffle(ref _genVerifiedIndexes);
                 for (var i = 0; i < _genVerifiedIndexes.Count; i++)
                 {
-                    var index = _genVerifiedIndexes[i];
-                    var chance = _checkers[index].Chance;
+                    int index = _genVerifiedIndexes[i];
+                    float chance = _checkers[index].Chance;
                     if (!_traps[index].UseOnlyGlobalChecker)
                         chance = chance * _traps[index].Checker.Chance;
                     if (!_randomService.IsChance(chance)) continue;
@@ -180,14 +161,11 @@ namespace GameEngine
                 _genRandomIndexes.Add(_genVerifiedIndexes[i]);
         }
 
-        /// <summary>
-        /// Заполняет целевой список итоговыми препятствиями, которые могут быть созданы в дальнейшем.
-        /// </summary>
         private void Step_4_GenerateBuildingIndexes()
         {
             for (var i = 0; i < _genRandomIndexes.Count; i++)
             {
-                var position = _traps[_genRandomIndexes[i]].Position;
+                int[] position = _traps[_genRandomIndexes[i]].Position;
                 if (position[_genGateIndex] != 2) continue;
                 _genBuildingIndexes.Add(_genRandomIndexes[i]);
 
@@ -201,10 +179,10 @@ namespace GameEngine
 
             for (var i = 0; i < _genRandomIndexes.Count; i++)
             {
-                if (!_Step_4_Check(_genRandomIndexes[i])) continue;
+                if (!Step_4_Check(_genRandomIndexes[i])) continue;
                 _genBuildingIndexes.Add(_genRandomIndexes[i]);
 
-                var position = _traps[_genRandomIndexes[i]].Position;
+                int[] position = _traps[_genRandomIndexes[i]].Position;
                 if (position[0] != 0) _genBuildingPosition[0] = position[0];
                 if (position[1] != 0) _genBuildingPosition[1] = position[1];
                 if (position[2] != 0) _genBuildingPosition[2] = position[2];
@@ -219,12 +197,9 @@ namespace GameEngine
             }
         }
 
-        /// <summary>
-        /// Проверяет, чтобы целевое препятствие не мешало уже выбранным препятствиям.
-        /// </summary>
-        private bool _Step_4_Check(int index)
+        private bool Step_4_Check(int index)
         {
-            var position = _traps[index].Position;
+            int[] position = _traps[index].Position;
             if (_genBuildingPosition[0] != 0 && position[0] != 0) return false;
             if (_genBuildingPosition[1] != 0 && position[1] != 0) return false;
             if (_genBuildingPosition[2] != 0 && position[2] != 0) return false;
@@ -254,10 +229,6 @@ namespace GameEngine
             return true;
         }
 
-        /// <summary>
-        /// Заполняет данные финальной информацией.
-        /// В том числе информацией о возможной позиции алмазов.
-        /// </summary>
         private void Step_5_StopGeneration()
         {
             if (_mainConfigEntity.delayCount.Value > 0)

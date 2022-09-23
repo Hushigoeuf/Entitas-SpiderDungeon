@@ -2,9 +2,6 @@
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Система инициализирует пулы объектов с заданными ID.
-    /// </summary>
     public class PoolSystem : IInitializeSystem
     {
         protected IPoolService _poolService;

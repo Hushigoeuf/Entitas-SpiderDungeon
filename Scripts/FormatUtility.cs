@@ -17,9 +17,6 @@ namespace GameEngine
             Fully = Days | Hours | Minutes | Seconds
         }
 
-        /// <summary>
-        /// Переводит заданнную строку в MD5-формат.
-        /// </summary>
         public static string ToMd5Hash(string target)
         {
             var ue = new UTF8Encoding();
@@ -32,9 +29,6 @@ namespace GameEngine
             return hashString.PadLeft(32, '0');
         }
 
-        /// <summary>
-        /// Переводит секунды в строку заданного формата.
-        /// </summary>
         public static string ToTimeString(int seconds, TimeFormats format = TimeFormats.Fully)
         {
             if (seconds < 0) seconds = 0;

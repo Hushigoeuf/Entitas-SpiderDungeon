@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Притягивает алмазы к первичному персонажу через Transform.
-    /// </summary>
-    public sealed class MagnitudeDiamondSystem : IExecuteSystem, IInitializeSystem
+    public class MagnitudeDiamondSystem : IExecuteSystem, IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly IGroup<EnvironmentEntity> _group;
@@ -29,7 +26,6 @@ namespace GameEngine
 
         public void Execute()
         {
-            // Если игра уже окончена
             if (_configEntity.isGameOver) return;
 
             _group.GetEntities(_buffer);

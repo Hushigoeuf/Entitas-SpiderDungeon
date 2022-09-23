@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Двигает объект в сторону заданной цели (преследование).
-    /// </summary>
-    public sealed class FollowSystem : IExecuteSystem
+    public class FollowSystem : IExecuteSystem
     {
         private readonly IGroup<FlightEntity> _entities;
         private readonly List<FlightEntity> _buffer;
@@ -27,15 +24,18 @@ namespace GameEngine
         {
             _entities.GetEntities(_buffer);
             for (var i = 0; i < _buffer.Count; i++)
-            {
-                var position = _buffer[i].transform.Value.position;
-                var resultPosition = Vector3.Lerp(_buffer[i].transform.Value.position,
-                    _buffer[i].target.Value.position - _buffer[i].distance.Value,
-                    _buffer[i].speed.Value * Time.deltaTime);
-                position.x = resultPosition.x;
-                position.y = resultPosition.y;
-                _buffer[i].transform.Value.position = position;
-            }
+                _buffer[i].transform.Value.position = GetPosition(_buffer[i]);
+        }
+
+        private Vector3 GetPosition(FlightEntity flightEntity)
+        {
+            var position = flightEntity.transform.Value.position;
+            var resultPosition = Vector3.Lerp(flightEntity.transform.Value.position,
+                flightEntity.target.Value.position - flightEntity.distance.Value,
+                flightEntity.speed.Value * Time.deltaTime);
+            position.x = resultPosition.x;
+            position.y = resultPosition.y;
+            return position;
         }
     }
 }

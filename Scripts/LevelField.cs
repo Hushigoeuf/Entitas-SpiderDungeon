@@ -4,19 +4,11 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Возвращает целое число в зависимости от заданного уровня.
-    /// </summary>
     [Serializable]
     public struct CountLevelField
     {
-        /// Стартовое значение
         [MinValue(0)] public int StartValue;
-
-        /// Максимальный уровень
         [MinValue(1)] public int LevelSize;
-
-        /// Как меняется значение на каждый уровень
         [MinValue(0)] public int ChangeValuePerLevel;
 
         public int GetCount(int level, int min = 0, int max = int.MaxValue)
@@ -27,9 +19,6 @@ namespace GameEngine
         }
     }
 
-    /// <summary>
-    /// Возвращает шанс выпадения (0-1) в зависимости от заданного уровня.
-    /// </summary>
     [Serializable]
     public struct ChanceLevelField
     {
@@ -45,9 +34,6 @@ namespace GameEngine
         }
     }
 
-    /// <summary>
-    /// Возвращает кол-во времени в зависимости от заданного уровня.
-    /// </summary>
     [Serializable]
     public struct TimeLevelField
     {

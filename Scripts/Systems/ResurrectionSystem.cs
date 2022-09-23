@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Создает нового персонажа после смерти существующего если есть свободные жизни.
-    /// </summary>
-    public sealed class ResurrectionSystem : ReactiveSystem<FlightEntity>, IInitializeSystem
+    public class ResurrectionSystem : ReactiveSystem<FlightEntity>, IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly IPoolService _poolService;
@@ -57,7 +54,6 @@ namespace GameEngine
             _characterGroup.GetEntities(_characterBuffer);
 
             {
-                // Есть ли свободные жизни для создания нового персонажа
                 if (_mainConfigEntity.lifeCountInStorage.Value <= 0) return false;
 
                 var flightCount = 0;
@@ -67,7 +63,6 @@ namespace GameEngine
                     flightCount++;
                 }
 
-                // Есть ли свободное место для нового персонажа
                 if (flightCount >= _flightSettings.MaxSizeInFlight) return false;
             }
 
@@ -86,16 +81,15 @@ namespace GameEngine
                     : _contexts.flight.guideOffsetEntity.transform.Value;
             }
 
-            // Создает нового персонажа, которые будет следовать за последним
             var character = _poolService.Spawn(GameSettings.POOL_ID_FLIGHT, _flightSettings.CharacterPrefab);
             character.position = new Vector3(character.position.x, ScreenSettings.GetBottomScreenPoint(
                 _camera.position.y - 5.12f), character.position.z);
 
             var followEntity = _contexts.flight.CreateEntity();
             {
-                var maxSpeed = _flightSettings.FollowSpeed + _flightSettings.FollowSpeed / 100 *
+                float maxSpeed = _flightSettings.FollowSpeed + _flightSettings.FollowSpeed / 100 *
                     (_flightSettings.LimitSpeed - _flightSettings.Speed) / (_flightSettings.Speed / 100);
-                var speed = _flightSettings.FollowSpeed + _flightSettings.FollowSpeed / 100 *
+                float speed = _flightSettings.FollowSpeed + _flightSettings.FollowSpeed / 100 *
                     (_movementEntity.maxSpeed.Value - _movementEntity.speed.Value) / _movementEntity.speed.Value * 100;
 
                 followEntity.isFollow = true;
@@ -125,8 +119,6 @@ namespace GameEngine
 
             _contexts.config.mainConfigEntity.ReplaceFlightIndex(
                 _contexts.config.mainConfigEntity.flightIndex.Value + 1);
-
-            // Уменьшает кол-во жизней у персонажей
             _contexts.config.mainConfigEntity.ReplaceLifeCountInStorage(
                 _contexts.config.mainConfigEntity.lifeCountInStorage.Value - 1);
 

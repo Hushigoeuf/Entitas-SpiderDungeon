@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Создает следы крови и остантков после гибели персонажа.
-    /// </summary>
-    public sealed class BloodSpawnSystem : ReactiveSystem<FlightEntity>
+    public class BloodSpawnSystem : ReactiveSystem<FlightEntity>
     {
         private readonly IPoolService _poolService;
         private readonly BloodSettings _bloodSettings;
@@ -38,11 +35,11 @@ namespace GameEngine
 
         private void Execute(FlightEntity character)
         {
-            if (!_prefabs.ContainsKey(character.death.ObstacleTypeIndex))
-                _prefabs.Add(character.death.ObstacleTypeIndex,
-                    _bloodSettings.GetPrefabs(character.death.ObstacleTypeIndex));
+            int obstacleTypeIndex = character.death.ObstacleTypeIndex;
+            if (!_prefabs.ContainsKey(obstacleTypeIndex))
+                _prefabs.Add(obstacleTypeIndex, _bloodSettings.GetPrefabs(obstacleTypeIndex));
 
-            foreach (var prefab in _prefabs[character.death.ObstacleTypeIndex])
+            foreach (var prefab in _prefabs[obstacleTypeIndex])
             {
                 var blood = _poolService.Spawn(GameSettings.POOL_ID_FLIGHT_BLOODS, prefab.Prefab);
                 blood.transform.position = new Vector3(
@@ -52,7 +49,6 @@ namespace GameEngine
                     blood.eulerAngles = new Vector3(blood.eulerAngles.x, blood.eulerAngles.y,
                         character.transform.Value.eulerAngles.z + prefab.OffsetRotation);
 
-                // Отправляем созданный объект в очередь на уничтожение
                 var destroyEntity = Contexts.sharedInstance.environment.CreateEntity();
                 {
                     destroyEntity.isDestroy = true;

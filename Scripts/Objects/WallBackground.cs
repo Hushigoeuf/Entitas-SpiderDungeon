@@ -7,13 +7,9 @@ using UnityEditor;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Содержит группу спрайтов стен для разных этапов игры.
-    /// </summary>
     [CreateAssetMenu(menuName = nameof(GameEngine) + "/" + nameof(WallBackground))]
     public class WallBackground : ScriptableObject
     {
-        /// Шанс выпадения этой группы спрайтов
         [Range(0, 1)] public float Chance = 1;
 
         [GUIColor(1f / 255 * 60, 1f / 255 * 179, 1f / 255 * 113)] [Required]
@@ -34,9 +30,6 @@ namespace GameEngine
         [GUIColor(1f / 255 * 255, 1f / 255 * 255, 1f / 255 * 255)] [Required]
         public Sprite WhiteSprite;
 
-        /// <summary>
-        /// Возвращает спрайт по индексу этапа.
-        /// </summary>
         public Sprite GetSprite(int step)
         {
             if (step <= 0) return GreenSprite;
@@ -56,9 +49,6 @@ namespace GameEngine
         }
 
 #if UNITY_EDITOR
-        /// <summary>
-        /// Отображает информацию о местонахождения спрайтов в проекте.
-        /// </summary>
         [OnInspectorGUI]
         private void EditorShowPathInformation()
         {

@@ -3,10 +3,7 @@ using Entitas;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Снижает уровень препятствий если экипирован предмет на удачу.
-    /// </summary>
-    public sealed class LuckDifficultySystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
+    public class LuckDifficultySystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly IRandomService _randomService;
@@ -74,7 +71,7 @@ namespace GameEngine
                 return;
             }
 
-            var level = _configEntity.level.FullLevel;
+            int level = _configEntity.level.FullLevel;
 
             if (_memoryEntity.index.Value - _lastGateScoreIndex >
                 _contentSettings.LuckDropPause.GetCount(level) &&

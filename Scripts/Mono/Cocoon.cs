@@ -4,7 +4,7 @@ using UnityEngine;
 namespace GameEngine
 {
     [AddComponentMenu(nameof(GameEngine) + "/" + nameof(Cocoon))]
-    public sealed class Cocoon : MonoBehaviour
+    public class Cocoon : MonoBehaviour
     {
         [Required] public GameObject DefaultModel;
 

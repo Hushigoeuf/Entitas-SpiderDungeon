@@ -4,11 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Инициализирует предмет обнаружения препятствий.
-    /// Обрабатывает запросы обнаружения и дает обратную связь по ним если это возможно.
-    /// </summary>
-    public sealed class SonarItemSystem : IInitializeSystem, IExecuteSystem
+    public class SonarItemSystem : IInitializeSystem, IExecuteSystem
     {
         private readonly Contexts _contexts;
         private readonly ItemSettings _settings;

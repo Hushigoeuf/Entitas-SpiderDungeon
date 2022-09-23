@@ -2,10 +2,7 @@
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Повышает кол-во жизней на старте если работает предмет на дополнительные жизни.
-    /// </summary>
-    public sealed class LifeItemSystem : IInitializeSystem
+    public class LifeItemSystem : IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly FlightSettings _flightSettings;
@@ -30,7 +27,7 @@ namespace GameEngine
                 if (_contexts.config.mainConfigEntity.lifeCountInStorage.Value >=
                     _flightSettings.MaxLifeInStorage) break;
 
-                var increaseValue = _itemSettings.LifeDropCount.GetCount(e.level.FullLevel);
+                int increaseValue = _itemSettings.LifeDropCount.GetCount(e.level.FullLevel);
                 if (_contexts.config.mainConfigEntity.lifeCountInStorage.Value + increaseValue >=
                     _flightSettings.MaxLifeInStorage)
                     increaseValue = _flightSettings.MaxLifeInStorage -

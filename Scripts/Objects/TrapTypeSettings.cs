@@ -9,13 +9,9 @@ using Sirenix.Utilities.Editor;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Настройки префаба и условий для его создания в процессе генерации.
-    /// </summary>
     [Serializable]
-    public sealed class TrapPrefab
+    public class TrapPrefab
     {
-        /// Отображает имя префаба если он задан
 #if UNITY_EDITOR
         [ShowInInspector]
         [HideLabel]
@@ -23,21 +19,16 @@ namespace GameEngine
         private string EditorPrefabName => Prefab?.name;
 #endif
 
-        /// Целевой префаб препятствия
         [PropertyOrder(100)] [PreviewField(256, ObjectFieldAlignment.Center)] [Required] [HideLabel]
         public GameObject Prefab;
 
-        /// Использовать только глобальный чекер
         [PropertyOrder(101)] public bool UseOnlyGlobalChecker = true;
 
-        /// Локальный чекер в рамках одного префаба
         [PropertyOrder(102)] [FoldoutGroup(nameof(Checker), false)] [DisableIf(nameof(UseOnlyGlobalChecker))]
         public TrapChecker Checker = new TrapChecker();
 
-        /// Информация о позиции препятствия в пространстве
         [HideInInspector] public int[] Position = new int[4];
 
-        /// Информация о возможном положении алмазов в зоне препятствия
         [HideInInspector] public bool[] DiamondFreeSpaces = new bool[4];
 
 #if UNITY_EDITOR
@@ -51,7 +42,6 @@ namespace GameEngine
             ALL = A | B | C | D
         }
 
-        /// Отображает позицию препятствия в инспекторе в виде EnumToggleButtons.
         [PropertyOrder(200)]
         [EnumToggleButtons]
         [ShowInInspector]
@@ -76,7 +66,6 @@ namespace GameEngine
             }
         }
 
-        /// Отображает проходы в зоне препятствия в виде EnumToggleButtons.
         [PropertyOrder(201)]
         [EnumToggleButtons]
         [ShowInInspector]
@@ -101,7 +90,6 @@ namespace GameEngine
             }
         }
 
-        /// Возможно ли сгенерировать алмазы в 1 проходе (уровень по горизонтали делится на 4 прохода)
         [PropertyOrder(202)]
         [TitleGroup(nameof(DiamondFreeSpaces))]
         [HorizontalGroup(nameof(DiamondFreeSpaces) + "/" + nameof(EditorDiamondFreeSpaces_0))]
@@ -113,7 +101,6 @@ namespace GameEngine
             set => DiamondFreeSpaces[0] = value;
         }
 
-        /// Возможно ли сгенерировать алмазы во 2 проходе
         [PropertyOrder(203)]
         [HorizontalGroup(nameof(DiamondFreeSpaces) + "/" + nameof(EditorDiamondFreeSpaces_0))]
         [HideLabel]
@@ -124,7 +111,6 @@ namespace GameEngine
             set => DiamondFreeSpaces[1] = value;
         }
 
-        /// Возможно ли сгенерировать алмазы в 3 проходе
         [PropertyOrder(204)]
         [HorizontalGroup(nameof(DiamondFreeSpaces) + "/" + nameof(EditorDiamondFreeSpaces_0))]
         [HideLabel]
@@ -135,7 +121,6 @@ namespace GameEngine
             set => DiamondFreeSpaces[2] = value;
         }
 
-        /// Возможно ли сгенерировать алмазы в 4 проходе
         [PropertyOrder(205)]
         [HorizontalGroup(nameof(DiamondFreeSpaces) + "/" + nameof(EditorDiamondFreeSpaces_0))]
         [HideLabel]
@@ -146,9 +131,6 @@ namespace GameEngine
             set => DiamondFreeSpaces[3] = value;
         }
 
-        /// <summary>
-        /// Оформляет EnumToggleButtons для позиции.
-        /// </summary>
         [PropertyOrder(200 - 10)]
         [OnInspectorGUI]
         private void EditorBeginPosition()
@@ -170,39 +152,23 @@ namespace GameEngine
 #endif
     }
 
-    /// <summary>
-    /// Класс-чекер с условиями для отбора.
-    /// </summary>
     [Serializable]
     [HideLabel]
-    public sealed class TrapChecker
+    public class TrapChecker
     {
-        /// Шанс выпадения от 0 до 1
         [Range(0, 1)] public float Chance = 1;
-
-        /// С какой итерации генератора можно внести этот тип в отбор
         [MinValue(0)] public int StartAtIndex;
-
-        /// С какого игрового счета можно внести этот тип в отбор
         [MinValue(0)] public int StartAtScore;
-
-        /// С какого этапа можно внести этот тип в отбор
         [Range(0, 5)] public int MinRegionIndex;
     }
 
-    /// <summary>
-    /// Объект типа для препятствий, содержит настройки типа.
-    /// </summary>
     [CreateAssetMenu(menuName = nameof(GameEngine) + "/" + nameof(TrapTypeSettings))]
-    public sealed class TrapTypeSettings : ScriptableObject
+    public class TrapTypeSettings : ScriptableObject
     {
-        /// Основной чекер для прохождения отбора
         public TrapChecker Checker = new TrapChecker();
 
-        /// Счетчик смертей от этого типа
         public CountParameter DeathCounter;
 
-        /// Список всех префабов, которые относятся к этому типу
         [ListDrawerSettings(Expanded = true, DraggableItems = false, ShowPaging = true, ShowIndexLabels = false,
             NumberOfItemsPerPage = 1)]
         [Space(12)]

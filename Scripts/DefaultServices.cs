@@ -1,6 +1,6 @@
 ﻿namespace GameEngine
 {
-    public static class DefaultServices
+    public class DefaultServices
     {
         public static readonly ISaveDataService SaveData = new EasySaveDataService();
         public static readonly IPoolService Pool = new PathologicalPoolService();

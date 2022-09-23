@@ -2,10 +2,7 @@
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Переключает автоматическое управление на ручное и обратно.
-    /// </summary>
-    public sealed class InputSwitchSystem : IExecuteSystem
+    public class InputSwitchSystem : IExecuteSystem
     {
         private readonly Contexts _contexts;
 
@@ -20,7 +17,7 @@ namespace GameEngine
             var eRightPointer = _contexts.flight.rightPointerEntity;
             var eGuideOffset = _contexts.flight.guideOffsetEntity;
 
-            var result = !eLeftPointer.isEnabled && !eRightPointer.isEnabled;
+            bool result = !eLeftPointer.isEnabled && !eRightPointer.isEnabled;
 
             if (result && result != eGuideOffset.isEnabled)
             {

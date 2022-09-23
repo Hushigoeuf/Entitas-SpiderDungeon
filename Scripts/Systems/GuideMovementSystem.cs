@@ -3,10 +3,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Двигает отряд в заданную сторону в автоматическом режиме.
-    /// </summary>
-    public sealed class GuideMovementSystem : IExecuteSystem
+    public class GuideMovementSystem : IExecuteSystem
     {
         private readonly Contexts _contexts;
 

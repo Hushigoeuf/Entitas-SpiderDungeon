@@ -4,16 +4,11 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Настройки стен (фон для заднего плана).
-    /// </summary>
     [CreateAssetMenu(menuName = nameof(GameEngine) + "/" + nameof(WallSettings))]
-    public sealed class WallSettings : ScriptableObject
+    public class WallSettings : ScriptableObject
     {
-        /// Префаб стены
         public GameObject WallPrefab;
 
-        /// Целевое кол-во пикселей на одну стену
         public int PixelsPerWall;
 
         [ListDrawerSettings(Expanded = true, DraggableItems = false, ShowPaging = false, ShowIndexLabels = false)]
@@ -22,9 +17,6 @@ namespace GameEngine
 
         private List<Sprite> _result;
 
-        /// <summary>
-        /// Возвращает рандомизированный список спрайтов стен в заданном кол-ве.
-        /// </summary>
         public List<Sprite> GetRandomWallSprites(int level, int minCount)
         {
             if (level < 0) return null;

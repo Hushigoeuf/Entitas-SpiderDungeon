@@ -11,11 +11,8 @@ namespace GameEngine
         MagnitudeField,
     }
 
-    /// <summary>
-    /// Класс для бонусных предметов.
-    /// </summary>
     [CreateAssetMenu(menuName = nameof(GameEngine) + "/" + nameof(BonusItem))]
-    public sealed class BonusItem : LifetimeItem
+    public class BonusItem : LifetimeItem
     {
         public BonusItemTypes BonusType = BonusItemTypes.Unknown;
     }

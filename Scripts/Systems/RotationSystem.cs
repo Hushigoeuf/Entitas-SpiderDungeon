@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Вращает объект в заданном направлении.
-    /// </summary>
-    public sealed class RotationSystem : IExecuteSystem
+    public class RotationSystem : IExecuteSystem
     {
         private readonly IGroup<EnvironmentEntity> _entities;
         private readonly List<EnvironmentEntity> _buffer;
@@ -29,7 +26,7 @@ namespace GameEngine
             {
                 if (!_buffer[i].isEnabled) continue;
                 var eulerAngles = _buffer[i].transform.Value.eulerAngles;
-                var dt = Time.deltaTime;
+                float dt = Time.deltaTime;
                 if (_buffer[i].direction.Value.x == -1 || _buffer[i].direction.Value.x == 1)
                     eulerAngles.x += _buffer[i].speed.Value * _buffer[i].direction.Value.x * dt;
                 if (_buffer[i].direction.Value.y == -1 || _buffer[i].direction.Value.y == 1)

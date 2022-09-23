@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Уничтожает персонажей и соответствующие сущности при столкновении с препятствиями.
-    /// </summary>
-    public sealed class DeathSystem : ReactiveSystem<FlightEntity>, IInitializeSystem, ICleanupSystem
+    public class DeathSystem : ReactiveSystem<FlightEntity>, IInitializeSystem, ICleanupSystem
     {
         private readonly Contexts _contexts;
         private readonly IPoolService _poolService;
@@ -56,7 +53,6 @@ namespace GameEngine
                 return e0.index.Value < e1.index.Value ? -1 : e0.index.Value > e1.index.Value ? 1 : 0;
             });
 
-            // Меняет цели для преследования у живых персонажей
             Transform target = null;
             for (var i = 0; i < _entities.Count; i++)
             {
@@ -79,14 +75,12 @@ namespace GameEngine
             {
                 if (!e.hasDeath) continue;
 
-                // Делает статистические правки
                 if (e.hasTrapType) _statsEntity.deathCount.CategoryCounts[e.trapType.InstanceID]++;
                 else _statsEntity.deathCount.NoCategoryCount++;
 
                 e.character.FollowEntity.Destroy();
                 e.character.RotationEntity.Destroy();
 
-                // Уничтожает персонажа из пула объектов
                 _poolService.Despawn(GameSettings.POOL_ID_FLIGHT, e.transform.Value);
 
                 e.Destroy();

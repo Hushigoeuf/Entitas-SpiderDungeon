@@ -2,10 +2,7 @@
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Следит за игровым счетом и меняет уровень окружения по достижению целевых значений.
-    /// </summary>
-    public sealed class ScoreRegionSystem : IInitializeSystem
+    public class ScoreRegionSystem : IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly int[] _scoreRegions;

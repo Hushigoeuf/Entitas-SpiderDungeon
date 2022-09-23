@@ -4,9 +4,6 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Базовый класс менеджера, который обслуживает ECS.
-    /// </summary>
     public abstract class EntitasManager<T> : MonoBehaviour where T : EntitasManager<T>
     {
         protected Contexts _contexts;
@@ -39,9 +36,6 @@ namespace GameEngine
             TearDown();
         }
 
-        /// <summary>
-        /// Инициализирует все системы.
-        /// </summary>
         protected virtual void Initialization()
         {
             _systems.Initialize();
@@ -57,9 +51,6 @@ namespace GameEngine
             _systems.Cleanup();
         }
 
-        /// <summary>
-        /// Освобождает все системы.
-        /// </summary>
         protected virtual void TearDown()
         {
             _systems.DeactivateReactiveSystems();
@@ -67,9 +58,6 @@ namespace GameEngine
             _systems.TearDown();
         }
 
-        /// <summary>
-        /// Открывает новую группу с системами.
-        /// </summary>
         protected virtual void OpenSystemGroup(string groupName)
         {
             if (string.IsNullOrEmpty(groupName)) return;
@@ -78,9 +66,6 @@ namespace GameEngine
             _groupSystems.Add(new List<ISystem>());
         }
 
-        /// <summary>
-        /// Добавляет систему в последнюю группу.
-        /// </summary>
         protected virtual void Add(ISystem system)
         {
             if (system == null) return;
@@ -91,9 +76,6 @@ namespace GameEngine
                 _groupSystems[_groupSystems.Count - 1].Add(system);
         }
 
-        /// <summary>
-        /// Закрывает последнюю группу с системами.
-        /// </summary>
         protected virtual void CloseSystemGroup()
         {
             var index = _groupNames.Count - 1;

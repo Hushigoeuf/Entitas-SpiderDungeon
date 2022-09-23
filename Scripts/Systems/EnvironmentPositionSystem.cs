@@ -2,11 +2,7 @@
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Обновляет информацию о позиции первичного персонажа,
-    /// а именно, на какой линии он находится по горизонтали (0-3).
-    /// </summary>
-    public sealed class EnvironmentPositionSystem : IInitializeSystem, IExecuteSystem
+    public class EnvironmentPositionSystem : IInitializeSystem, IExecuteSystem
     {
         private const float CELL_SIZE = 3.5f;
         private const float CELL_HALL_SIZE = .5f;

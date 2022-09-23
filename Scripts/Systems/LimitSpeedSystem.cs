@@ -3,9 +3,6 @@ using Entitas;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Ограничивает скорость минимальным и максимальным значениями.
-    /// </summary>
     public class LimitSpeedFlightSystem : ReactiveSystem<FlightEntity>
     {
         public LimitSpeedFlightSystem(Contexts contexts) : base(contexts.flight)

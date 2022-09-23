@@ -4,9 +4,6 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Система повышает скорость у сущностей с соответствующим компонентом.
-    /// </summary>
     public abstract class AccelerationSystem<T> : IExecuteSystem where T : Entity
     {
         protected IGroup<T> _group;

@@ -3,10 +3,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Сервис для рандомизирования данных на основе Unity Random.
-    /// </summary>
-    public sealed class UnityRandomService : IRandomService
+    public class UnityRandomService : IRandomService
     {
         public float Range(float min, float max)
         {
@@ -34,9 +31,9 @@ namespace GameEngine
         {
             if (values == null || values.Length == 0) return;
             var random = new System.Random();
-            for (var i = values.Length - 1; i >= 1; i--)
+            for (int i = values.Length - 1; i >= 1; i--)
             {
-                var j = random.Next(i + 1);
+                int j = random.Next(i + 1);
                 (values[j], values[i]) = (values[i], values[j]);
             }
         }
@@ -45,9 +42,9 @@ namespace GameEngine
         {
             if (values == null || values.Count == 0) return;
             var random = new System.Random();
-            for (var i = values.Count - 1; i >= 1; i--)
+            for (int i = values.Count - 1; i >= 1; i--)
             {
-                var j = random.Next(i + 1);
+                int j = random.Next(i + 1);
                 (values[j], values[i]) = (values[i], values[j]);
             }
         }
@@ -67,7 +64,7 @@ namespace GameEngine
                     indexes[i] = i;
                 }
 
-                var criteria = sum / max;
+                float criteria = sum / max;
                 if (criteria < 1f) criteria = 1f;
                 for (var i = 0; i < chances.Length; i++) chances[i] = chances[i] / max / criteria;
 
@@ -82,11 +79,11 @@ namespace GameEngine
 
             var result = new List<T>();
             {
-                var point = Random.value * sum;
+                float point = Random.value * sum;
 
                 Shuffle(ref indexes);
 
-                foreach (var index in indexes)
+                foreach (int index in indexes)
                     if (point < chances[index])
                         result.Add(values[index]);
                     else point -= chances[index];

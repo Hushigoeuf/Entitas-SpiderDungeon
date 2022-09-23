@@ -7,7 +7,7 @@ namespace GameEngine
     /// Сервис для работы с пулом объектов на основе PoolManager.
     /// Источник: http://poolmanager.path-o-logical.com/
     /// </summary>
-    public sealed class PathologicalPoolService : IPoolService
+    public class PathologicalPoolService : IPoolService
     {
         public bool Contains(string poolID) => PoolManager.Pools.ContainsKey(poolID);
 

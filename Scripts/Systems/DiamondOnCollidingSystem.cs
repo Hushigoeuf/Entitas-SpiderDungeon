@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Обрабатывает столкновения с алмазами.
-    /// </summary>
-    public sealed class DiamondOnCollidingSystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
+    public class DiamondOnCollidingSystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly IPoolService _poolService;

@@ -3,10 +3,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Обновляет скорость движения отряда в зависимости от активности.
-    /// </summary>
-    public sealed class InputUpdateSpeedSystem : IExecuteSystem
+    public class InputUpdateSpeedSystem : IExecuteSystem
     {
         private readonly Contexts _contexts;
         private readonly FlightSettings _settings;

@@ -3,10 +3,7 @@ using Entitas;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Создает коконы если экипирован соответствующий предмет и меняет GenerationMemory.
-    /// </summary>
-    public sealed class CocoonGenerationSystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
+    public class CocoonGenerationSystem : ReactiveSystem<EnvironmentEntity>, IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly IRandomService _randomService;
@@ -63,22 +60,19 @@ namespace GameEngine
             if (_cocoonEntity == null) return;
             if (entities.Count == 0) return;
 
-            // Игра уже окончена
             if (_contexts.config.mainConfigEntity.isGameOver) return;
 
-            // Достигнут максимальный лимит жизней
             if (_contexts.config.mainConfigEntity.lifeCountInStorage.Value >= _flightSettings.MaxLifeInStorage) return;
 
             if (_memoryEntity.index.Value < _contentSettings.CocoonPauseAfterStart) return;
 
-            var level = _cocoonEntity.level.FullLevel;
+            int level = _cocoonEntity.level.FullLevel;
             if (_memoryEntity.index.Value - _lastIndexBeforeSpawned <
                 _contentSettings.CocoonDropPause.GetCount(level)) return;
             _lastIndexBeforeSpawned = _memoryEntity.index.Value;
 
             for (var ei = 0; ei < entities.Count; ei++)
             {
-                // Выбиваем шанс на создание кокона
                 if (!_randomService.IsChance(_contentSettings.CocoonDropChance.GetChance(level))) continue;
 
                 _memoryEntity.generationMemory.PrefabList.Clear();

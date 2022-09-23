@@ -3,11 +3,7 @@ using Entitas;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Обрабатывает запросы после столкновения персонажа с коконом.
-    /// Добавляет жизни в запаса и создает новых персонажей при необходимости.
-    /// </summary>
-    public sealed class CocoonOnCollidingSystem : ReactiveSystem<ConfigEntity>, IInitializeSystem
+    public class CocoonOnCollidingSystem : ReactiveSystem<ConfigEntity>, IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly FlightSettings _flightSettings;
@@ -71,21 +67,8 @@ namespace GameEngine
             if (entities.Count == 0) return;
             if (_contexts.config.mainConfigEntity.isGameOver) return;
 
-            var level = 1;
-            if (_cocoonEntity != null) level = _cocoonEntity.level.FullLevel;
-            else if (_configEntity != null) level += _itemSettings.EfficiencyIncreaseLevelSize;
-            var increaseValue = _itemSettings.CocoonDropLife.GetCount(level);
+            ReplaceLifeCountInStorage(GetIncreaseValue(GetLevel()));
 
-            if (_contexts.config.mainConfigEntity.lifeCountInStorage.Value + increaseValue >
-                _flightSettings.MaxLifeInStorage)
-                increaseValue = _flightSettings.MaxLifeInStorage -
-                                _contexts.config.mainConfigEntity.lifeCountInStorage.Value;
-
-            // Добавляет в запас новые жизни
-            _contexts.config.mainConfigEntity.ReplaceLifeCountInStorage(
-                _contexts.config.mainConfigEntity.lifeCountInStorage.Value + increaseValue);
-
-            // Проверяет свободное место в отряда и создает новых персонажей при необходимости
             _characterGroup.GetEntities(_characterBuffer);
             if (_characterBuffer.Count >= _flightSettings.MaxSizeInFlight) return;
 
@@ -97,6 +80,30 @@ namespace GameEngine
                     e.isResurrection = true;
                 }
             }
+        }
+
+        private int GetLevel()
+        {
+            var level = 1;
+            if (_cocoonEntity != null) level = _cocoonEntity.level.FullLevel;
+            else if (_configEntity != null) level += _itemSettings.EfficiencyIncreaseLevelSize;
+            return level;
+        }
+
+        private int GetIncreaseValue(int level)
+        {
+            var increaseValue = _itemSettings.CocoonDropLife.GetCount(level);
+            if (_contexts.config.mainConfigEntity.lifeCountInStorage.Value + increaseValue >
+                _flightSettings.MaxLifeInStorage)
+                increaseValue = _flightSettings.MaxLifeInStorage -
+                                _contexts.config.mainConfigEntity.lifeCountInStorage.Value;
+            return increaseValue;
+        }
+
+        private void ReplaceLifeCountInStorage(int increaseValue)
+        {
+            _contexts.config.mainConfigEntity.ReplaceLifeCountInStorage(
+                _contexts.config.mainConfigEntity.lifeCountInStorage.Value + increaseValue);
         }
     }
 }

@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Двигает персонажей в заданном направлении.
-    /// </summary>
-    public sealed class MovementSystem : IExecuteSystem
+    public class MovementSystem : IExecuteSystem
     {
         private readonly IGroup<FlightEntity> _entities;
         private readonly List<FlightEntity> _buffer;

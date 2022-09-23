@@ -4,7 +4,7 @@ using UnityEngine;
 namespace GameEngine
 {
     [AddComponentMenu(nameof(GameEngine) + "/" + nameof(MagnitudeDiamond))]
-    public sealed class MagnitudeDiamond : GameEntitasBehaviour
+    public class MagnitudeDiamond : GameEntitasBehaviour
     {
         public Transform CustomTarget;
 
@@ -21,7 +21,7 @@ namespace GameEngine
             if (IsGameOver) return;
             if (_magnitudeEntity != null) return;
 
-            var currentSpeed = _contexts.flight.movementEntity.speed.Value;
+            float currentSpeed = _contexts.flight.movementEntity.speed.Value;
 
             _magnitudeEntity = _contexts.environment.CreateEntity();
             {

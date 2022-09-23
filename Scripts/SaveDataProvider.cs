@@ -6,16 +6,11 @@ namespace GameEngine
 {
     public abstract class SaveDataValue<T> where T : IComparable, IConvertible
     {
-        /// Ключ (имя) параметра
         public readonly string Key;
 
-        /// Значение параметра
         protected T _value;
 
-        /// Существует ли параметр в системе
         public bool IsExists { get; private set; }
-
-        /// Было ли изменено значение
         public bool IsChanged { get; private set; }
 
         public T Value
@@ -47,19 +42,10 @@ namespace GameEngine
             Save(Key, Value);
         }
 
-        /// <summary>
-        /// Сравнивает два значения одного типа.
-        /// </summary>
         protected abstract bool Compare(T first, T second);
 
-        /// <summary>
-        /// Загружает значение.
-        /// </summary>
         protected abstract T Load(string key, T defaultValue);
 
-        /// <summary>
-        /// Сохраняет значение.
-        /// </summary>
         protected abstract void Save(string key, T value);
     }
 
@@ -97,11 +83,6 @@ namespace GameEngine
         }
     }
 
-    /// <summary>
-    /// Поставщик сохраненных данных.
-    /// Умеет загружать и сохранять данные.
-    /// Может быть добавлен в качестве компонента и автоматически сохранять данные.
-    /// </summary>
     [AddComponentMenu(nameof(GameEngine) + "/" + nameof(SaveDataProvider))]
     public sealed class SaveDataProvider : MonoBehaviour
     {
@@ -111,25 +92,16 @@ namespace GameEngine
         private static readonly Dictionary<string, SaveDataValue_Bool> BoolValues =
             new Dictionary<string, SaveDataValue_Bool>();
 
-        /// <summary>
-        /// Сохраняет данные после уничтожения объекта (при переходе со сцены).
-        /// </summary>
         private void OnDestroy()
         {
             SaveAll();
         }
 
-        /// <summary>
-        /// Сохраняет данные если игра остановлена.
-        /// </summary>
         private void OnApplicationPause(bool pauseStatus)
         {
             if (pauseStatus) SaveAll();
         }
 
-        /// <summary>
-        /// Инициализирует параметр если это возможно.
-        /// </summary>
         private static void InitValueInt(string key, int defaultValue)
         {
             if (string.IsNullOrEmpty(key)) return;
@@ -144,9 +116,6 @@ namespace GameEngine
                 BoolValues.Add(key, new SaveDataValue_Bool(key, defaultValue));
         }
 
-        /// <summary>
-        /// Существует ли заданный параметр в сохранениях.
-        /// </summary>
         public static bool IsExistsInt(string key, int defaultValue)
         {
             InitValueInt(key, defaultValue);
@@ -159,9 +128,6 @@ namespace GameEngine
             return BoolValues[key].IsExists;
         }
 
-        /// <summary>
-        /// Возвращает значение параметра.
-        /// </summary>
         public static int GetInt(string key, int defaultValue)
         {
             InitValueInt(key, defaultValue);
@@ -174,9 +140,6 @@ namespace GameEngine
             return BoolValues[key].Value;
         }
 
-        /// <summary>
-        /// Устанавливает значение параметра.
-        /// </summary>
         public static void SetInt(string key, int value)
         {
             InitValueInt(key, value);
@@ -189,9 +152,6 @@ namespace GameEngine
             BoolValues[key].Value = value;
         }
 
-        /// <summary>
-        /// Сохраняет все параметры.
-        /// </summary>
         public static void SaveAll()
         {
             if (IntValues.Count != 0)

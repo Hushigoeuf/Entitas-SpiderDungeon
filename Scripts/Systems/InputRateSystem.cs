@@ -2,7 +2,7 @@
 
 namespace GameEngine
 {
-    public sealed class InputRateSystem : IExecuteSystem
+    public class InputRateSystem : IExecuteSystem
     {
         private readonly Contexts _contexts;
 

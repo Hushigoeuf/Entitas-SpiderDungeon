@@ -3,10 +3,7 @@ using Entitas;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Следит за жизнями персонажей и объявляет проигрыш если все погибнут.
-    /// </summary>
-    public sealed class GameOverSystem : ReactiveSystem<FlightEntity>, IInitializeSystem
+    public class GameOverSystem : ReactiveSystem<FlightEntity>, IInitializeSystem
     {
         private readonly Contexts _contexts;
         private readonly IGroup<FlightEntity> _characterGroup;

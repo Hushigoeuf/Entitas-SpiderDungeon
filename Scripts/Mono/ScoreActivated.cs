@@ -2,9 +2,6 @@
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Обрабатывает столкновения персонажа с счетчиками.
-    /// </summary>
     [AddComponentMenu(nameof(GameEngine) + "/" + nameof(ScoreActivated))]
     public class ScoreActivated : EntitasBehaviour
     {

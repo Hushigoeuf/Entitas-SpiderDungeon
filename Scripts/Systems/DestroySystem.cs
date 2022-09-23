@@ -4,10 +4,7 @@ using Entitas.VisualDebugging.Unity;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Уничтожает заданный объект если его позиция по Y находится вне зоны видимости.
-    /// </summary>
-    public sealed class DestroySystem : IExecuteSystem
+    public class DestroySystem : IExecuteSystem
     {
         private readonly IGroup<EnvironmentEntity> _group;
         private readonly IPoolService _poolService;
@@ -30,7 +27,7 @@ namespace GameEngine
             {
                 if (_buffer[i].target.Value != null)
                 {
-                    var offset = _buffer[i].hasOffset ? _buffer[i].offset.Value : 0;
+                    float offset = _buffer[i].hasOffset ? _buffer[i].offset.Value : 0;
                     if (_buffer[i].target.Value.position.y > _buffer[i].transform.Value.position.y - offset) continue;
                     if (_buffer[i].hasPool)
                     {

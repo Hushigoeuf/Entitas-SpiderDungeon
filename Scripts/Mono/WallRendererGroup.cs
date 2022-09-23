@@ -4,7 +4,7 @@ using UnityEngine;
 namespace GameEngine
 {
     [AddComponentMenu(nameof(GameEngine) + "/" + nameof(WallRendererGroup))]
-    public sealed class WallRendererGroup : MonoBehaviour
+    public class WallRendererGroup : MonoBehaviour
     {
         [Required] public SpriteRenderer FirstWallRenderer;
         [Required] public SpriteRenderer SecondWallRenderer;

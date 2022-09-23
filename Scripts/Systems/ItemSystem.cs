@@ -3,10 +3,7 @@ using Entitas;
 
 namespace GameEngine
 {
-    /// <summary>
-    /// Инициализирует работу предметов.
-    /// </summary>
-    public sealed class ItemSystem : IInitializeSystem, IExecuteSystem
+    public class ItemSystem : IInitializeSystem, IExecuteSystem
     {
         private readonly Contexts _contexts;
         private readonly ItemSettings _itemSettings;
@@ -28,7 +25,6 @@ namespace GameEngine
 
         public void Initialize()
         {
-            // Создает сущности под предметы инвентаря
             foreach (var item in _itemSettings.InventoryItems)
             {
                 if (!_contentAlwaysIncluded && !item.IsWorking) continue;
@@ -38,7 +34,6 @@ namespace GameEngine
                 e.AddLevel(item.Level, 0);
             }
 
-            // Создает сущности под бонусные предметы
             foreach (var bonus in _itemSettings.BonusItems)
             {
                 if (!_contentAlwaysIncluded && !bonus.IsWorking) continue;
@@ -59,9 +54,6 @@ namespace GameEngine
             return e;
         }
 
-        /// <summary>
-        /// Вычисляет рабочее состояние всех инициированных предметов.
-        /// </summary>
         public void Execute()
         {
             if (!_loadSkipped)
